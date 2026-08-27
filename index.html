@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#071f33" />
+    <meta name="description" content="Protótipo mobile da OSISTEC para busca de atendimento, plantões e medicamentos." />
+    <title>OSISTEC — Aplicativo</title>
+    <link rel="icon" href="assets/osistec-logo.jpeg" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <svg class="svg-sprite" aria-hidden="true">
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path><path d="M3.7 12h4l1.5-3 2.2 6 1.7-3H20"></path></symbol>
+      <symbol id="icon-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"></path></symbol>
+      <symbol id="icon-pill" viewBox="0 0 24 24"><path d="m10.5 20.5-7-7a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7Z"></path><path d="m8 9 7 7"></path></symbol>
+      <symbol id="icon-map" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></symbol>
+      <symbol id="icon-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"></path></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path></symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></symbol>
+      <symbol id="icon-hospital" viewBox="0 0 24 24"><path d="M3 21h18M5 21V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v15"></path><path d="M9 9h6M12 6v6M8 15h2M14 15h2M10 21v-3h4v3"></path></symbol>
+      <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></symbol>
+    </svg>
+
+    <div class="app-shell">
+      <header class="app-header">
+        <div class="brand">
+          <img src="assets/osistec-logo.jpeg" alt="" />
+          <div>
+            <strong>OSISTEC</strong>
+            <span>Saúde conectada</span>
+          </div>
+        </div>
+        <button class="icon-button" type="button" id="notification-button" aria-label="Ver notificações">
+          <svg><use href="#icon-bell"></use></svg>
+          <span class="notification-dot" aria-hidden="true"></span>
+        </button>
+      </header>
+
+      <main class="app-content">
+        <section class="app-panel" id="panel-plantoes" role="tabpanel" aria-labelledby="tab-plantoes" hidden>
+          <div class="screen-heading">
+            <div>
+              <span class="eyebrow">Área profissional</span>
+              <h1>Plantões disponíveis</h1>
+              <p>Encontre oportunidades próximas e ajude unidades com maior demanda.</p>
+            </div>
+            <span class="screen-icon screen-icon--blue"><svg><use href="#icon-briefcase"></use></svg></span>
+          </div>
+
+          <article class="info-strip">
+            <svg><use href="#icon-shield"></use></svg>
+            <div><strong>Perfil profissional verificado</strong><span>Integração prevista com CRM e COREN</span></div>
+          </article>
+
+          <div class="section-toolbar">
+            <div class="section-title-group">
+              <h2>Próximos de você</h2>
+              <span id="shift-count">3 vagas</span>
+            </div>
+            <button class="small-icon-button" type="button" aria-label="Filtros de plantão"><svg><use href="#icon-filter"></use></svg></button>
+          </div>
+
+          <div class="filter-row" role="group" aria-label="Filtrar plantões por área">
+            <button class="filter-chip is-active" type="button" data-shift-filter="todos">Todos</button>
+            <button class="filter-chip" type="button" data-shift-filter="medicina">Medicina</button>
+            <button class="filter-chip" type="button" data-shift-filter="enfermagem">Enfermagem</button>
+          </div>
+
+          <div class="card-list" id="shift-list" aria-live="polite"></div>
+
+          <article class="soft-note">
+            <svg><use href="#icon-shield"></use></svg>
+            <p><strong>Demonstração:</strong> candidaturas e validações são simuladas e não enviam dados reais.</p>
+          </article>
+        </section>
+
+        <section class="app-panel is-active" id="panel-buscar" role="tabpanel" aria-labelledby="tab-buscar">
+          <div class="welcome-line">
+            <div>
+              <span>Olá, bem-vindo</span>
+              <strong>Como podemos ajudar?</strong>
+            </div>
+            <span class="profile-avatar" aria-label="Perfil do usuário"><svg><use href="#icon-user"></use></svg></span>
+          </div>
+
+          <article class="search-hero">
+            <div class="hero-pulse" aria-hidden="true"></div>
+            <span class="hero-tag"><i></i> Rede conectada</span>
+            <h1>Encontre o cuidado certo, sem perder tempo.</h1>
+            <p>Busque por sintomas, especialidade, exame ou unidade de saúde.</p>
+
+            <form class="main-search" id="care-search-form" role="search">
+              <svg><use href="#icon-search"></use></svg>
+              <label class="sr-only" for="care-search">Buscar atendimento</label>
+              <input id="care-search" type="search" placeholder="Ex.: febre, vacina, pediatria" autocomplete="off" />
+              <button type="submit" aria-label="Pesquisar"><svg><use href="#icon-chevron"></use></svg></button>
+            </form>
+          </article>
+
+          <div class="quick-searches" aria-label="Buscas rápidas">
+            <button type="button" data-care-query="febre">Febre</button>
+            <button type="button" data-care-query="dor de cabeça">Dor de cabeça</button>
+            <button type="button" data-care-query="vacina">Vacina</button>
+            <button type="button" data-care-query="exame">Exames</button>
+          </div>
+
+          <button class="triage-button" type="button" id="open-triage">
+            <span class="triage-icon"><svg><use href="#icon-heart"></use></svg></span>
+            <span><strong>Iniciar pré-triagem</strong><small>Descreva o que está sentindo</small></span>
+            <svg class="chevron"><use href="#icon-chevron"></use></svg>
+          </button>
+
+          <div class="section-toolbar section-toolbar--results">
+            <div class="section-title-group">
+              <h2 id="care-results-title">Unidades próximas</h2>
+              <span id="care-results-count">3 opções</span>
+            </div>
+            <span class="demo-pill">Dados demo</span>
+          </div>
+
+          <div class="card-list" id="care-results" aria-live="polite"></div>
+
+          <article class="journey-card">
+            <span class="eyebrow">Jornada simplificada</span>
+            <h2>Da busca ao atendimento</h2>
+            <ol>
+              <li><span>1</span><div><strong>Descreva</strong><small>Sintomas ou necessidade</small></div></li>
+              <li><span>2</span><div><strong>Compare</strong><small>Demanda e distância</small></div></li>
+              <li><span>3</span><div><strong>Confirme</strong><small>Encaminhamento e check-in</small></div></li>
+            </ol>
+          </article>
+
+          <p class="safety-copy">Este é um protótipo demonstrativo. Em situação de risco imediato, procure atendimento de emergência.</p>
+        </section>
+
+        <section class="app-panel" id="panel-farmacia" role="tabpanel" aria-labelledby="tab-farmacia" hidden>
+          <div class="screen-heading">
+            <div>
+              <span class="eyebrow">Estoque integrado</span>
+              <h1>Buscar medicamentos</h1>
+              <p>Confira disponibilidade antes de sair de casa e compare opções próximas.</p>
+            </div>
+            <span class="screen-icon screen-icon--mint"><svg><use href="#icon-pill"></use></svg></span>
+          </div>
+
+          <form class="secondary-search" id="medicine-search-form" role="search">
+            <svg><use href="#icon-search"></use></svg>
+            <label class="sr-only" for="medicine-search">Buscar medicamento</label>
+            <input id="medicine-search" type="search" placeholder="Nome ou princípio ativo" autocomplete="off" />
+            <button type="submit">Buscar</button>
+          </form>
+
+          <div class="filter-row" role="group" aria-label="Filtrar local do medicamento">
+            <button class="filter-chip medicine-filter is-active" type="button" data-medicine-filter="todos">Todos</button>
+            <button class="filter-chip medicine-filter" type="button" data-medicine-filter="publica">Rede pública</button>
+            <button class="filter-chip medicine-filter" type="button" data-medicine-filter="parceira">Parceiras</button>
+          </div>
+
+          <div class="section-toolbar section-toolbar--results">
+            <div class="section-title-group">
+              <h2>Disponíveis agora</h2>
+              <span id="medicine-count">4 resultados</span>
+            </div>
+            <span class="demo-pill">Dados demo</span>
+          </div>
+
+          <div class="card-list" id="medicine-list" aria-live="polite"></div>
+
+          <article class="soft-note">
+            <svg><use href="#icon-shield"></use></svg>
+            <p>Preços, estoque e reservas são fictícios. Medicamentos sujeitos a receita exigem validação no atendimento.</p>
+          </article>
+        </section>
+      </main>
+
+      <nav class="bottom-tabs" role="tablist" aria-label="Áreas do aplicativo">
+        <button type="button" id="tab-plantoes" role="tab" aria-controls="panel-plantoes" aria-selected="false" tabindex="-1" data-tab="plantoes">
+          <span class="tab-icon"><svg><use href="#icon-briefcase"></use></svg></span>
+          <span>Plantões</span>
+        </button>
+        <button class="tab-primary is-active" type="button" id="tab-buscar" role="tab" aria-controls="panel-buscar" aria-selected="true" data-tab="buscar">
+          <span class="tab-icon"><svg><use href="#icon-search"></use></svg></span>
+          <span>Buscar</span>
+        </button>
+        <button type="button" id="tab-farmacia" role="tab" aria-controls="panel-farmacia" aria-selected="false" tabindex="-1" data-tab="farmacia">
+          <span class="tab-icon"><svg><use href="#icon-pill"></use></svg></span>
+          <span>Farmácia</span>
+        </button>
+      </nav>
+    </div>
+
+    <dialog class="app-dialog" id="triage-dialog" aria-labelledby="triage-title">
+      <form method="dialog" id="triage-form">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading">
+          <div><span class="eyebrow">Pré-triagem</span><h2 id="triage-title">Conte o que está sentindo</h2></div>
+          <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
+        </div>
+
+        <label class="field-label" for="symptom-description">Descreva os sintomas</label>
+        <textarea id="symptom-description" rows="4" required placeholder="Ex.: Estou com febre e dor de cabeça desde ontem"></textarea>
+
+        <fieldset>
+          <legend>Como você considera a intensidade?</legend>
+          <div class="intensity-options">
+            <label><input type="radio" name="intensity" value="leve" required /><span>Leve</span></label>
+            <label><input type="radio" name="intensity" value="moderada" /><span>Moderada</span></label>
+            <label><input type="radio" name="intensity" value="intensa" /><span>Intensa</span></label>
+          </div>
+        </fieldset>
+
+        <p class="dialog-note">A versão demonstrativa não realiza diagnóstico. Em uma versão real, a classificação usaria o Protocolo de Manchester e confirmação profissional.</p>
+        <button class="primary-button" type="submit">Encontrar atendimento</button>
+      </form>
+    </dialog>
+
+    <dialog class="app-dialog" id="reserve-dialog" aria-labelledby="reserve-title">
+      <form method="dialog" id="reserve-form">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading">
+          <div><span class="eyebrow">Reserva temporária</span><h2 id="reserve-title">Confirmar reserva</h2></div>
+          <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
+        </div>
+        <div id="reserve-summary" class="reserve-summary"></div>
+        <p class="dialog-note">Nesta demonstração, a reserva fica salva somente neste aparelho e não é enviada à farmácia.</p>
+        <input type="hidden" id="reserve-medicine-id" />
+        <button class="primary-button" type="submit">Reservar por 20 minutos</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
+      <span><svg><use href="#icon-check"></use></svg></span>
+      <p id="toast-message">Ação concluída.</p>
+    </div>
+
+    <noscript>Ative o JavaScript para utilizar as buscas e interações deste protótipo.</noscript>
+  </body>
+</html>
