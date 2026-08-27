@@ -186,7 +186,7 @@ svg {
 
 .map-loading {
   position: absolute;
-  z-index: 620;
+  z-index: 1200;
   top: 50%;
   left: 50%;
   display: flex;
@@ -217,7 +217,7 @@ svg {
 
 .voice-card {
   position: absolute;
-  z-index: 610;
+  z-index: 1100;
   top: 12px;
   right: 12px;
   left: 12px;
@@ -314,7 +314,7 @@ svg {
 
 .locate-button {
   position: absolute;
-  z-index: 605;
+  z-index: 1050;
   right: 13px;
   bottom: 61px;
   display: grid;
@@ -329,7 +329,7 @@ svg {
 }
 .map-legend {
   position: absolute;
-  z-index: 604;
+  z-index: 1050;
   bottom: 12px;
   left: 12px;
   display: flex;
@@ -380,7 +380,7 @@ svg {
 
 .recommendation-card {
   position: absolute;
-  z-index: 700;
+  z-index: 1300;
   right: 0;
   bottom: 0;
   left: 0;

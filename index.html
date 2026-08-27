@@ -85,7 +85,7 @@
         </section>
 
         <section class="app-panel map-panel is-active" id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa">
-          <div id="health-map" tabindex="0" role="application" aria-label="Mapa de unidades de saúde próximas"></div>
+          <div id="health-map" tabindex="0" role="region" aria-label="Mapa interativo de unidades de saúde próximas"></div>
 
           <div class="map-loading" id="map-loading" role="status" aria-live="polite">
             <span class="loading-spinner" aria-hidden="true"></span>
@@ -111,7 +111,7 @@
             </button>
             <form class="text-search-form" id="text-search-form" role="search" hidden>
               <label class="sr-only" for="symptom-search">Digite o que está sentindo</label>
-              <input id="symptom-search" type="search" placeholder="Ex.: febre e dor de cabeça" autocomplete="off" required />
+              <input id="symptom-search" type="search" placeholder="Ex.: febre e dor de cabeça" autocomplete="off" enterkeyhint="search" required />
               <button type="submit">Buscar</button>
             </form>
           </section>
@@ -158,7 +158,7 @@
           <form class="secondary-search" id="medicine-search-form" role="search">
             <svg><use href="#icon-search"></use></svg>
             <label class="sr-only" for="medicine-search">Buscar medicamento</label>
-            <input id="medicine-search" type="search" placeholder="Nome ou princípio ativo" autocomplete="off" />
+            <input id="medicine-search" type="search" placeholder="Nome ou princípio ativo" autocomplete="off" enterkeyhint="search" />
             <button type="submit">Buscar</button>
           </form>
 
