@@ -1,4 +1,4 @@
-const CACHE_NAME = "osistec-app-v1";
+const CACHE_NAME = "osistec-app-v2";
 const APP_FILES = [
   "./index.html",
   "./style.css",

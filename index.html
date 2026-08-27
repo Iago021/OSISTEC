@@ -4,11 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="theme-color" content="#071f33" />
-    <meta name="description" content="Protótipo mobile da OSISTEC para busca de atendimento, plantões e medicamentos." />
-    <title>OSISTEC — Aplicativo</title>
+    <meta name="description" content="OSISTEC: encontre atendimento próximo por voz, consulte plantões e localize medicamentos." />
+    <title>OSISTEC — Saúde conectada</title>
     <link rel="icon" href="assets/osistec-logo.jpeg" />
     <link rel="manifest" href="manifest.webmanifest" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
     <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+      defer
+    ></script>
     <script src="app.js" defer></script>
   </head>
   <body>
@@ -27,16 +39,18 @@
       <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></symbol>
       <symbol id="icon-hospital" viewBox="0 0 24 24"><path d="M3 21h18M5 21V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v15"></path><path d="M9 9h6M12 6v6M8 15h2M14 15h2M10 21v-3h4v3"></path></symbol>
       <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></symbol>
+      <symbol id="icon-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"></path></symbol>
+      <symbol id="icon-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h3a3 3 0 0 0 3-3V8a3 3 0 0 1 3-3"></path></symbol>
+      <symbol id="icon-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></symbol>
+      <symbol id="icon-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7 16h10"></path></symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4M12 17h.01"></path></symbol>
     </svg>
 
     <div class="app-shell">
       <header class="app-header">
         <div class="brand">
           <img src="assets/osistec-logo.jpeg" alt="" />
-          <div>
-            <strong>OSISTEC</strong>
-            <span>Saúde conectada</span>
-          </div>
+          <div><strong>OSISTEC</strong><span>Saúde conectada</span></div>
         </div>
         <button class="icon-button" type="button" id="notification-button" aria-label="Ver notificações">
           <svg><use href="#icon-bell"></use></svg>
@@ -45,27 +59,20 @@
       </header>
 
       <main class="app-content">
-        <section class="app-panel" id="panel-plantoes" role="tabpanel" aria-labelledby="tab-plantoes" hidden>
+        <section class="app-panel scroll-panel" id="panel-plantoes" role="tabpanel" aria-labelledby="tab-plantoes" hidden>
           <div class="screen-heading">
-            <div>
-              <span class="eyebrow">Área profissional</span>
-              <h1>Plantões disponíveis</h1>
-              <p>Encontre oportunidades próximas e ajude unidades com maior demanda.</p>
-            </div>
+            <div><span class="eyebrow">Área profissional</span><h1>Plantões próximos</h1><p>Vagas para profissionais verificados em unidades com maior demanda.</p></div>
             <span class="screen-icon screen-icon--blue"><svg><use href="#icon-briefcase"></use></svg></span>
           </div>
 
           <article class="info-strip">
             <svg><use href="#icon-shield"></use></svg>
-            <div><strong>Perfil profissional verificado</strong><span>Integração prevista com CRM e COREN</span></div>
+            <div><strong>Perfil profissional verificado</strong><span>Integração futura com CRM e COREN</span></div>
           </article>
 
           <div class="section-toolbar">
-            <div class="section-title-group">
-              <h2>Próximos de você</h2>
-              <span id="shift-count">3 vagas</span>
-            </div>
-            <button class="small-icon-button" type="button" aria-label="Filtros de plantão"><svg><use href="#icon-filter"></use></svg></button>
+            <div class="section-title-group"><h2>Disponíveis</h2><span id="shift-count">3 vagas</span></div>
+            <button class="small-icon-button" type="button" id="shift-filter-button" aria-label="Ir para filtros de plantão"><svg><use href="#icon-filter"></use></svg></button>
           </div>
 
           <div class="filter-row" role="group" aria-label="Filtrar plantões por área">
@@ -73,81 +80,78 @@
             <button class="filter-chip" type="button" data-shift-filter="medicina">Medicina</button>
             <button class="filter-chip" type="button" data-shift-filter="enfermagem">Enfermagem</button>
           </div>
-
           <div class="card-list" id="shift-list" aria-live="polite"></div>
-
-          <article class="soft-note">
-            <svg><use href="#icon-shield"></use></svg>
-            <p><strong>Demonstração:</strong> candidaturas e validações são simuladas e não enviam dados reais.</p>
-          </article>
+          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Plantões e candidaturas são demonstrativos e não enviam informações reais.</p></article>
         </section>
 
-        <section class="app-panel is-active" id="panel-buscar" role="tabpanel" aria-labelledby="tab-buscar">
-          <div class="welcome-line">
-            <div>
-              <span>Olá, bem-vindo</span>
-              <strong>Como podemos ajudar?</strong>
+        <section class="app-panel map-panel is-active" id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa">
+          <div id="health-map" tabindex="0" role="application" aria-label="Mapa de unidades de saúde próximas"></div>
+
+          <div class="map-loading" id="map-loading" role="status" aria-live="polite">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <p><strong>Buscando sua localização</strong><small>Permita o acesso para encontrar unidades próximas.</small></p>
+          </div>
+
+          <section class="voice-card" aria-labelledby="voice-title">
+            <div class="voice-copy">
+              <span class="eyebrow">Busca simples por voz</span>
+              <h1 id="voice-title">O que você está sentindo?</h1>
+              <p id="voice-transcript" aria-live="polite">Toque no microfone e fale, por exemplo: “estou com febre”.</p>
             </div>
-            <span class="profile-avatar" aria-label="Perfil do usuário"><svg><use href="#icon-user"></use></svg></span>
-          </div>
-
-          <article class="search-hero">
-            <div class="hero-pulse" aria-hidden="true"></div>
-            <span class="hero-tag"><i></i> Rede conectada</span>
-            <h1>Encontre o cuidado certo, sem perder tempo.</h1>
-            <p>Busque por sintomas, especialidade, exame ou unidade de saúde.</p>
-
-            <form class="main-search" id="care-search-form" role="search">
-              <svg><use href="#icon-search"></use></svg>
-              <label class="sr-only" for="care-search">Buscar atendimento</label>
-              <input id="care-search" type="search" placeholder="Ex.: febre, vacina, pediatria" autocomplete="off" />
-              <button type="submit" aria-label="Pesquisar"><svg><use href="#icon-chevron"></use></svg></button>
+            <button class="voice-button" id="voice-button" type="button" aria-label="Começar busca por voz" aria-pressed="false">
+              <svg><use href="#icon-mic"></use></svg>
+              <span class="voice-rings" aria-hidden="true"></span>
+            </button>
+            <div class="voice-listening" id="voice-listening" hidden aria-live="assertive">
+              <span></span><span></span><span></span><span></span>
+              <strong>Ouvindo…</strong>
+            </div>
+            <button class="text-fallback-button" id="show-text-search" type="button" aria-expanded="false" aria-controls="text-search-form">
+              <svg><use href="#icon-keyboard"></use></svg> Prefere digitar?
+            </button>
+            <form class="text-search-form" id="text-search-form" role="search" hidden>
+              <label class="sr-only" for="symptom-search">Digite o que está sentindo</label>
+              <input id="symptom-search" type="search" placeholder="Ex.: febre e dor de cabeça" autocomplete="off" required />
+              <button type="submit">Buscar</button>
             </form>
-          </article>
+          </section>
 
-          <div class="quick-searches" aria-label="Buscas rápidas">
-            <button type="button" data-care-query="febre">Febre</button>
-            <button type="button" data-care-query="dor de cabeça">Dor de cabeça</button>
-            <button type="button" data-care-query="vacina">Vacina</button>
-            <button type="button" data-care-query="exame">Exames</button>
-          </div>
-
-          <button class="triage-button" type="button" id="open-triage">
-            <span class="triage-icon"><svg><use href="#icon-heart"></use></svg></span>
-            <span><strong>Iniciar pré-triagem</strong><small>Descreva o que está sentindo</small></span>
-            <svg class="chevron"><use href="#icon-chevron"></use></svg>
+          <button class="locate-button" id="locate-button" type="button" aria-label="Centralizar mapa na minha localização">
+            <svg><use href="#icon-crosshair"></use></svg>
           </button>
 
-          <div class="section-toolbar section-toolbar--results">
-            <div class="section-title-group">
-              <h2 id="care-results-title">Unidades próximas</h2>
-              <span id="care-results-count">3 opções</span>
-            </div>
-            <span class="demo-pill">Dados demo</span>
+          <div class="map-legend" aria-label="Legenda da lotação demonstrativa">
+            <span><i class="low"></i>Livre</span><span><i class="medium"></i>Moderada</span><span><i class="full"></i>Lotada</span>
           </div>
 
-          <div class="card-list" id="care-results" aria-live="polite"></div>
-
-          <article class="journey-card">
-            <span class="eyebrow">Jornada simplificada</span>
-            <h2>Da busca ao atendimento</h2>
-            <ol>
-              <li><span>1</span><div><strong>Descreva</strong><small>Sintomas ou necessidade</small></div></li>
-              <li><span>2</span><div><strong>Compare</strong><small>Demanda e distância</small></div></li>
-              <li><span>3</span><div><strong>Confirme</strong><small>Encaminhamento e check-in</small></div></li>
-            </ol>
+          <article class="recommendation-card" id="recommendation-card" aria-live="polite" hidden>
+            <div class="sheet-grabber" aria-hidden="true"></div>
+            <div class="recommendation-top">
+              <div>
+                <span class="recommendation-label" id="recommendation-label">Unidade indicada</span>
+                <h2 id="recommendation-name">Unidade de saúde</h2>
+                <p id="recommendation-type">Atendimento geral</p>
+              </div>
+              <span class="occupancy-badge" id="recommendation-occupancy">Livre</span>
+            </div>
+            <div class="route-metrics">
+              <span><svg><use href="#icon-route"></use></svg><strong id="route-distance">—</strong><small>distância</small></span>
+              <span><svg><use href="#icon-clock"></use></svg><strong id="route-duration">—</strong><small>de carro</small></span>
+              <span><svg><use href="#icon-user"></use></svg><strong id="route-wait">—</strong><small>espera demo</small></span>
+            </div>
+            <p class="recommendation-reason" id="recommendation-reason"></p>
+            <p class="urgent-warning" id="urgent-warning" hidden><svg><use href="#icon-alert"></use></svg><span>Possível situação urgente. Procure atendimento imediato.</span></p>
+            <div class="recommendation-actions">
+              <button class="checkin-button" id="checkin-button" type="button">Fazer check-in</button>
+              <a class="gps-button" id="gps-button" href="#" target="_blank" rel="noopener noreferrer"><svg><use href="#icon-route"></use></svg>Abrir no GPS</a>
+            </div>
+            <p class="demo-disclaimer">A lotação e a recomendação são demonstrativas. O protótipo não realiza diagnóstico.</p>
           </article>
-
-          <p class="safety-copy">Este é um protótipo demonstrativo. Em situação de risco imediato, procure atendimento de emergência.</p>
         </section>
 
-        <section class="app-panel" id="panel-farmacia" role="tabpanel" aria-labelledby="tab-farmacia" hidden>
+        <section class="app-panel scroll-panel" id="panel-farmacia" role="tabpanel" aria-labelledby="tab-farmacia" hidden>
           <div class="screen-heading">
-            <div>
-              <span class="eyebrow">Estoque integrado</span>
-              <h1>Buscar medicamentos</h1>
-              <p>Confira disponibilidade antes de sair de casa e compare opções próximas.</p>
-            </div>
+            <div><span class="eyebrow">Estoque integrado</span><h1>Medicamentos</h1><p>Consulte opções próximas antes de sair de casa.</p></div>
             <span class="screen-icon screen-icon--mint"><svg><use href="#icon-pill"></use></svg></span>
           </div>
 
@@ -163,64 +167,27 @@
             <button class="filter-chip medicine-filter" type="button" data-medicine-filter="publica">Rede pública</button>
             <button class="filter-chip medicine-filter" type="button" data-medicine-filter="parceira">Parceiras</button>
           </div>
-
           <div class="section-toolbar section-toolbar--results">
-            <div class="section-title-group">
-              <h2>Disponíveis agora</h2>
-              <span id="medicine-count">4 resultados</span>
-            </div>
+            <div class="section-title-group"><h2>Disponíveis agora</h2><span id="medicine-count">4 resultados</span></div>
             <span class="demo-pill">Dados demo</span>
           </div>
-
           <div class="card-list" id="medicine-list" aria-live="polite"></div>
-
-          <article class="soft-note">
-            <svg><use href="#icon-shield"></use></svg>
-            <p>Preços, estoque e reservas são fictícios. Medicamentos sujeitos a receita exigem validação no atendimento.</p>
-          </article>
+          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Preços, estoques e reservas são fictícios. Medicamentos sujeitos a receita precisam de validação.</p></article>
         </section>
       </main>
 
       <nav class="bottom-tabs" role="tablist" aria-label="Áreas do aplicativo">
         <button type="button" id="tab-plantoes" role="tab" aria-controls="panel-plantoes" aria-selected="false" tabindex="-1" data-tab="plantoes">
-          <span class="tab-icon"><svg><use href="#icon-briefcase"></use></svg></span>
-          <span>Plantões</span>
+          <span class="tab-icon"><svg><use href="#icon-briefcase"></use></svg></span><span>Plantões</span>
         </button>
-        <button class="tab-primary is-active" type="button" id="tab-buscar" role="tab" aria-controls="panel-buscar" aria-selected="true" data-tab="buscar">
-          <span class="tab-icon"><svg><use href="#icon-search"></use></svg></span>
-          <span>Buscar</span>
+        <button class="tab-primary is-active" type="button" id="tab-mapa" role="tab" aria-controls="panel-mapa" aria-selected="true" data-tab="mapa">
+          <span class="tab-icon"><svg><use href="#icon-map"></use></svg></span><span>Mapa</span>
         </button>
         <button type="button" id="tab-farmacia" role="tab" aria-controls="panel-farmacia" aria-selected="false" tabindex="-1" data-tab="farmacia">
-          <span class="tab-icon"><svg><use href="#icon-pill"></use></svg></span>
-          <span>Farmácia</span>
+          <span class="tab-icon"><svg><use href="#icon-pill"></use></svg></span><span>Farmácia</span>
         </button>
       </nav>
     </div>
-
-    <dialog class="app-dialog" id="triage-dialog" aria-labelledby="triage-title">
-      <form method="dialog" id="triage-form">
-        <div class="dialog-grabber" aria-hidden="true"></div>
-        <div class="dialog-heading">
-          <div><span class="eyebrow">Pré-triagem</span><h2 id="triage-title">Conte o que está sentindo</h2></div>
-          <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
-        </div>
-
-        <label class="field-label" for="symptom-description">Descreva os sintomas</label>
-        <textarea id="symptom-description" rows="4" required placeholder="Ex.: Estou com febre e dor de cabeça desde ontem"></textarea>
-
-        <fieldset>
-          <legend>Como você considera a intensidade?</legend>
-          <div class="intensity-options">
-            <label><input type="radio" name="intensity" value="leve" required /><span>Leve</span></label>
-            <label><input type="radio" name="intensity" value="moderada" /><span>Moderada</span></label>
-            <label><input type="radio" name="intensity" value="intensa" /><span>Intensa</span></label>
-          </div>
-        </fieldset>
-
-        <p class="dialog-note">A versão demonstrativa não realiza diagnóstico. Em uma versão real, a classificação usaria o Protocolo de Manchester e confirmação profissional.</p>
-        <button class="primary-button" type="submit">Encontrar atendimento</button>
-      </form>
-    </dialog>
 
     <dialog class="app-dialog" id="reserve-dialog" aria-labelledby="reserve-title">
       <form method="dialog" id="reserve-form">
@@ -230,17 +197,15 @@
           <button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
         </div>
         <div id="reserve-summary" class="reserve-summary"></div>
-        <p class="dialog-note">Nesta demonstração, a reserva fica salva somente neste aparelho e não é enviada à farmácia.</p>
+        <p class="dialog-note">A reserva fica salva somente neste aparelho e não é enviada à farmácia.</p>
         <input type="hidden" id="reserve-medicine-id" />
         <button class="primary-button" type="submit">Reservar por 20 minutos</button>
       </form>
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true">
-      <span><svg><use href="#icon-check"></use></svg></span>
-      <p id="toast-message">Ação concluída.</p>
+      <span><svg><use href="#icon-check"></use></svg></span><p id="toast-message">Ação concluída.</p>
     </div>
-
-    <noscript>Ative o JavaScript para utilizar as buscas e interações deste protótipo.</noscript>
+    <noscript>Ative o JavaScript para utilizar o mapa, a busca por voz e as demais funções.</noscript>
   </body>
 </html>

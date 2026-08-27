@@ -1,7 +1,7 @@
 {
   "name": "OSISTEC — Saúde conectada",
   "short_name": "OSISTEC",
-  "description": "Protótipo mobile para busca de atendimento, plantões e medicamentos.",
+  "description": "Protótipo mobile que encontra unidades de saúde próximas por voz ou texto e mostra a rota.",
   "lang": "pt-BR",
   "start_url": "./index.html",
   "scope": "./",
