@@ -1,7 +1,12 @@
 (() => {
   "use strict";
 
-  const DEFAULT_POSITION = { lat: -23.55052, lon: -46.633308, isDemo: true };
+  const MOGI_GUACU_POSITION = {
+    lat: -22.367928,
+    lon: -46.943198,
+    isDemo: false,
+    fixedCity: true,
+  };
   const FULL_THRESHOLD = 85;
   const OVERPASS_RADIUS_METERS = 12000;
 
@@ -405,14 +410,20 @@
       iconSize: [20, 20],
       iconAnchor: [10, 10],
     });
+    const positionLabel = position.fixedCity
+      ? "Centro de Mogi Guaçu"
+      : position.isDemo
+        ? "Localização de demonstração"
+        : "Sua localização";
+
     state.userMarker = window.L.marker([position.lat, position.lon], {
       icon: markerIcon,
-      title: position.isDemo ? "Localização de demonstração" : "Sua localização",
-      alt: position.isDemo ? "Localização de demonstração" : "Sua localização",
+      title: positionLabel,
+      alt: positionLabel,
       zIndexOffset: 1000,
     }).addTo(state.map);
 
-    if (!position.isDemo && Number.isFinite(accuracy)) {
+    if (!position.isDemo && !position.fixedCity && Number.isFinite(accuracy)) {
       state.accuracyCircle = window.L.circle([position.lat, position.lon], {
         radius: Math.min(accuracy, 1000),
         color: "#277fd2",
@@ -446,7 +457,7 @@
   }
 
   async function loadUnitsAround(position) {
-    showMapLoading("Procurando unidades próximas", "Consultando hospitais, UPAs e unidades de saúde no mapa.");
+    showMapLoading("Procurando unidades em Mogi Guaçu", "Consultando hospitais, UPAs e unidades de saúde da cidade.");
     let units = [];
 
     if (!position.isDemo) {
@@ -477,52 +488,15 @@
     }
   }
 
-  function usePosition(position, accuracy) {
-    state.userPosition = position;
-    addUserPositionToMap(position, accuracy);
-    state.map.setView([position.lat, position.lon], 14, { animate: true });
-    loadUnitsAround(position);
-  }
-
-  function requestUserLocation({ recenterOnly = false } = {}) {
+  function centerOnMogiGuacu({ reloadUnits = false } = {}) {
     if (!state.map) return;
+    const position = { ...MOGI_GUACU_POSITION };
+    state.userPosition = position;
+    addUserPositionToMap(position, 0);
+    state.map.setView([position.lat, position.lon], 14, { animate: true });
 
-    if (!navigator.geolocation) {
-      if (!state.userPosition) {
-        showToast("Este navegador não oferece localização. Usando o mapa demonstrativo de São Paulo.");
-        usePosition(DEFAULT_POSITION, 0);
-      }
-      return;
-    }
-
-    showMapLoading("Buscando sua localização", "Permita o acesso para encontrar unidades próximas.");
-    navigator.geolocation.getCurrentPosition(
-      (result) => {
-        const position = {
-          lat: result.coords.latitude,
-          lon: result.coords.longitude,
-          isDemo: false,
-        };
-        if (recenterOnly && state.userPosition && !state.userPosition.isDemo) {
-          state.userPosition = position;
-          addUserPositionToMap(position, result.coords.accuracy);
-          state.map.setView([position.lat, position.lon], Math.max(state.map.getZoom(), 15), { animate: true });
-          hideMapLoading();
-          return;
-        }
-        usePosition(position, result.coords.accuracy);
-      },
-      () => {
-        hideMapLoading();
-        if (!state.userPosition) {
-          showToast("Localização não autorizada. Usando uma demonstração em São Paulo; você pode tentar novamente.");
-          usePosition(DEFAULT_POSITION, 0);
-        } else {
-          showToast("Não foi possível atualizar sua localização.");
-        }
-      },
-      { enableHighAccuracy: true, timeout: 9000, maximumAge: 60000 },
-    );
+    if (reloadUnits || !state.units.length) loadUnitsAround(position);
+    else showToast("Mapa centralizado em Mogi Guaçu.");
   }
 
   function initMap() {
@@ -535,7 +509,7 @@
       zoomControl: true,
       attributionControl: true,
       minZoom: 3,
-    }).setView([-15.78, -47.93], 4);
+    }).setView([MOGI_GUACU_POSITION.lat, MOGI_GUACU_POSITION.lon], 13);
 
     window.L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
@@ -543,7 +517,8 @@
     }).addTo(state.map);
 
     state.markerLayer = window.L.layerGroup().addTo(state.map);
-    requestUserLocation();
+    showMapLoading("Abrindo Mogi Guaçu", "Procurando hospitais, UPAs e unidades de saúde da cidade.");
+    centerOnMogiGuacu({ reloadUnits: true });
   }
 
   function classifySymptoms(input) {
@@ -880,7 +855,7 @@
       findBestUnit($("#symptom-search").value);
     });
 
-    $("#locate-button").addEventListener("click", () => requestUserLocation({ recenterOnly: true }));
+    $("#locate-button").addEventListener("click", () => centerOnMogiGuacu());
 
     $("#checkin-button").addEventListener("click", (event) => {
       const unitId = event.currentTarget.dataset.unitId;
