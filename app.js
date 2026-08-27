@@ -10,39 +10,6 @@
   const FULL_THRESHOLD = 85;
   const OVERPASS_RADIUS_METERS = 12000;
 
-  const shifts = [
-    {
-      id: "plantao-01",
-      unit: "UPA Central",
-      area: "Enfermagem",
-      filter: "enfermagem",
-      time: "Hoje · 19h às 07h",
-      distance: "1,2 km",
-      note: "Cobertura emergencial para o turno noturno.",
-      urgency: "Urgente",
-    },
-    {
-      id: "plantao-02",
-      unit: "Hospital Municipal",
-      area: "Clínica médica",
-      filter: "medicina",
-      time: "Amanhã · 07h às 19h",
-      distance: "3,8 km",
-      note: "Reforço da equipe de pronto atendimento.",
-      urgency: "Nova vaga",
-    },
-    {
-      id: "plantao-03",
-      unit: "UBS Zona Norte",
-      area: "Enfermagem",
-      filter: "enfermagem",
-      time: "Sábado · 08h às 17h",
-      distance: "5,1 km",
-      note: "Apoio em vacinação e atendimento básico.",
-      urgency: "Fim de semana",
-    },
-  ];
-
   const medicines = [
     {
       id: "dipirona-500",
@@ -94,6 +61,53 @@
     },
   ];
 
+  const shifts = [
+    {
+      id: "upa-central-noite",
+      title: "Clínica médica — noite",
+      unit: "UPA Central de Mogi Guaçu",
+      address: "Região central · Mogi Guaçu",
+      time: "19h às 7h",
+      duration: "12 horas",
+      compensation: "R$ 1.450 demo",
+      dayOffset: 0,
+      urgent: true,
+    },
+    {
+      id: "hospital-municipal-dia",
+      title: "Clínica médica — diurno",
+      unit: "Hospital Municipal (demo)",
+      address: "Jardim Novo · Mogi Guaçu",
+      time: "7h às 19h",
+      duration: "12 horas",
+      compensation: "R$ 1.300 demo",
+      dayOffset: 1,
+      urgent: false,
+    },
+    {
+      id: "upa-pediatria",
+      title: "Apoio em pediatria",
+      unit: "UPA Norte (demo)",
+      address: "Zona Norte · Mogi Guaçu",
+      time: "13h às 19h",
+      duration: "6 horas",
+      compensation: "R$ 820 demo",
+      dayOffset: 2,
+      urgent: false,
+    },
+    {
+      id: "ubs-fim-semana",
+      title: "Atendimento ambulatorial",
+      unit: "UBS Jardim Guaçu (demo)",
+      address: "Jardim Guaçu · Mogi Guaçu",
+      time: "8h às 16h",
+      duration: "8 horas",
+      compensation: "R$ 900 demo",
+      dayOffset: 4,
+      urgent: false,
+    },
+  ];
+
   const $ = (selector, root = document) => root.querySelector(selector);
   const $$ = (selector, root = document) => Array.from(root.querySelectorAll(selector));
 
@@ -116,13 +130,14 @@
   };
 
   const state = {
+    user: null,
     activeTab: "mapa",
     shiftFilter: "todos",
     medicineFilter: "todos",
     medicineQuery: "",
-    applications: new Set(storage.get("osistec_applications")),
-    reservations: new Set(storage.get("osistec_reservations")),
-    checkins: new Set(storage.get("osistec_checkins")),
+    applications: new Set(),
+    reservations: new Set(),
+    checkins: new Set(),
     map: null,
     markerLayer: null,
     routeLayer: null,
@@ -179,7 +194,8 @@
   }
 
   function setActiveTab(tabName, focusTab = false) {
-    const nextTab = ["plantoes", "mapa", "farmacia"].includes(tabName) ? tabName : "mapa";
+    const allowedTabs = state.user?.role === "doctor" ? ["plantoes", "mapa", "farmacia"] : ["mapa", "farmacia"];
+    const nextTab = allowedTabs.includes(tabName) ? tabName : "mapa";
     state.activeTab = nextTab;
 
     $$(".bottom-tabs [role='tab']").forEach((tab) => {
@@ -733,37 +749,6 @@
     state.recognition = recognition;
   }
 
-  function shiftCard(shift) {
-    const applied = state.applications.has(shift.id);
-    return `
-      <article class="shift-card">
-        <div class="shift-card__top">
-          <div class="card-identity">
-            <span class="card-symbol">${icon("icon-briefcase")}</span>
-            <div><strong>${shift.unit}</strong><small>${shift.area}</small></div>
-          </div>
-          <span class="status-badge ${shift.urgency === "Urgente" ? "status-badge--urgent" : "status-badge--available"}">${shift.urgency}</span>
-        </div>
-        <div class="card-meta">
-          <span>${icon("icon-clock")}${shift.time}</span>
-          <span>${icon("icon-map")}${shift.distance}</span>
-        </div>
-        <p class="card-note">${shift.note}</p>
-        <div class="card-actions">
-          <button class="button-primary${applied ? " is-complete" : ""}" type="button" data-apply-shift="${shift.id}">
-            ${applied ? "Candidatura registrada" : "Tenho interesse"}
-          </button>
-          <button class="button-secondary" type="button" data-open-map aria-label="Abrir o mapa">${icon("icon-map")}</button>
-        </div>
-      </article>`;
-  }
-
-  function renderShifts() {
-    const filtered = shifts.filter((shift) => state.shiftFilter === "todos" || shift.filter === state.shiftFilter);
-    $("#shift-count").textContent = `${filtered.length} ${filtered.length === 1 ? "vaga" : "vagas"}`;
-    $("#shift-list").innerHTML = filtered.map(shiftCard).join("");
-  }
-
   function medicineCard(medicine) {
     const reserved = state.reservations.has(medicine.id);
     const networkLabel = medicine.network === "publica" ? "Rede pública" : "Farmácia parceira";
@@ -805,6 +790,105 @@
       : `<div class="empty-state">${icon("icon-search")}<strong>Nenhum medicamento encontrado</strong><span>Tente outro nome ou remova um filtro.</span></div>`;
   }
 
+  function shiftDate(dayOffset) {
+    const date = new Date();
+    date.setHours(12, 0, 0, 0);
+    date.setDate(date.getDate() + dayOffset);
+    return date;
+  }
+
+  function shiftDateLabel(dayOffset) {
+    const prefix = dayOffset === 0 ? "Hoje" : dayOffset === 1 ? "Amanhã" : "";
+    const date = shiftDate(dayOffset).toLocaleDateString("pt-BR", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+    });
+    return prefix ? `${prefix} · ${date}` : date;
+  }
+
+  function shiftCard(shift) {
+    const applied = state.applications.has(shift.id);
+    return `
+      <article class="shift-card">
+        <div class="shift-card__top">
+          <span class="shift-date">${escapeHtml(shiftDateLabel(shift.dayOffset))}</span>
+          ${shift.urgent ? '<span class="urgent-shift">Cobertura prioritária</span>' : '<span class="status-badge status-badge--available">Disponível</span>'}
+        </div>
+        <h3>${escapeHtml(shift.title)}</h3>
+        <p class="shift-unit">${icon("icon-hospital")}${escapeHtml(shift.unit)}</p>
+        <p class="shift-address">${icon("icon-map")}${escapeHtml(shift.address)}</p>
+        <div class="shift-facts">
+          <span><small>Horário</small><strong>${escapeHtml(shift.time)}</strong></span>
+          <span><small>Duração</small><strong>${escapeHtml(shift.duration)}</strong></span>
+          <span><small>Valor</small><strong>${escapeHtml(shift.compensation)}</strong></span>
+        </div>
+        <button class="shift-apply-button${applied ? " is-applied" : ""}" type="button" data-shift-apply="${escapeHtml(shift.id)}">
+          ${applied ? `${icon("icon-check")} Candidatura enviada — cancelar` : "Tenho interesse"}
+        </button>
+      </article>`;
+  }
+
+  function renderShifts() {
+    if (state.user?.role !== "doctor") return;
+    const filtered = shifts.filter((shift) => {
+      if (state.shiftFilter === "hoje") return shift.dayOffset === 0;
+      if (state.shiftFilter === "proximos") return shift.dayOffset > 0;
+      if (state.shiftFilter === "candidatados") return state.applications.has(shift.id);
+      return true;
+    });
+    $("#shift-count").textContent = `${filtered.length} ${filtered.length === 1 ? "plantão" : "plantões"}`;
+    $("#shift-list").innerHTML = filtered.length
+      ? filtered.map(shiftCard).join("")
+      : `<div class="empty-state">${icon("icon-briefcase")}<strong>Nenhum plantão neste filtro</strong><span>Escolha outro filtro para ver as oportunidades.</span></div>`;
+  }
+
+  function perUserKey(type) {
+    return `osistec_${type}_${state.user?.id || "sem-conta"}`;
+  }
+
+  function resetPrivateScreen() {
+    state.pendingQuery = "";
+    state.selectedUnit = null;
+    $("#symptom-search").value = "";
+    $("#voice-transcript").textContent = "Toque no microfone e fale, por exemplo: “estou com febre”.";
+    $("#recommendation-card").hidden = true;
+    if (state.routeLayer) state.routeLayer.clearLayers();
+  }
+
+  function applyAuthenticatedUser(user) {
+    state.user = user;
+    if (!user) {
+      resetPrivateScreen();
+      return;
+    }
+
+    const isDoctor = user.role === "doctor";
+    $$("[data-role-only='doctor']").forEach((element) => {
+      element.hidden = !isDoctor;
+    });
+    $("#bottom-tabs").classList.toggle("has-doctor", isDoctor);
+
+    state.applications = new Set(storage.get(perUserKey("applications")));
+    state.reservations = new Set(storage.get(perUserKey("reservations")));
+    state.checkins = new Set(storage.get(perUserKey("checkins")));
+    resetPrivateScreen();
+    renderMedicines();
+
+    if (isDoctor) {
+      const initial = String(user.name || "M").trim().charAt(0).toUpperCase() || "M";
+      $("#doctor-summary-initial").textContent = initial;
+      $("#doctor-summary-name").textContent = user.name || "Médico";
+      $("#doctor-summary-credential").textContent = `CRM ${user.crm || "—"}/${user.crmState || "—"}`;
+      $("#doctor-summary-specialty").textContent = user.specialty || "Especialidade não informada";
+      renderShifts();
+    }
+
+    setActiveTab("mapa");
+    if (!state.map) initMap();
+    else window.setTimeout(() => state.map.invalidateSize(), 50);
+  }
+
   function openReserveDialog(medicineId) {
     const medicine = medicines.find((item) => item.id === medicineId);
     if (!medicine) return;
@@ -821,7 +905,7 @@
       tab.addEventListener("keydown", (event) => {
         if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
         event.preventDefault();
-        const tabs = $$(".bottom-tabs [role='tab']");
+        const tabs = $$(".bottom-tabs [role='tab']:not([hidden])");
         const direction = event.key === "ArrowRight" ? 1 : -1;
         const nextIndex = (tabs.indexOf(tab) + direction + tabs.length) % tabs.length;
         setActiveTab(tabs[nextIndex].dataset.tab, true);
@@ -861,24 +945,38 @@
       const unitId = event.currentTarget.dataset.unitId;
       if (!unitId || state.checkins.has(unitId)) return;
       state.checkins.add(unitId);
-      storage.set("osistec_checkins", Array.from(state.checkins));
+      storage.set(perUserKey("checkins"), Array.from(state.checkins));
       event.currentTarget.classList.add("is-complete");
       event.currentTarget.textContent = "Check-in confirmado";
       showToast("Check-in demonstrativo salvo neste aparelho.");
     });
 
-    $("#notification-button").addEventListener("click", () => showToast("Você não tem novas notificações."));
-
-    $("#shift-filter-button").addEventListener("click", () => {
-      $(".filter-row", $("#panel-plantoes")).scrollIntoView({ behavior: "smooth", block: "center" });
+    $("#notification-button").addEventListener("click", () => {
+      showToast(state.user?.role === "doctor" ? "Há plantões demonstrativos disponíveis em Mogi Guaçu." : "Você não tem novas notificações.");
     });
 
     $$("[data-shift-filter]").forEach((button) => {
       button.addEventListener("click", () => {
+        if (state.user?.role !== "doctor") return;
         state.shiftFilter = button.dataset.shiftFilter;
         $$("[data-shift-filter]").forEach((item) => item.classList.toggle("is-active", item === button));
         renderShifts();
       });
+    });
+
+    $("#shift-list").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-shift-apply]");
+      if (!button || state.user?.role !== "doctor") return;
+      const shiftId = button.dataset.shiftApply;
+      if (state.applications.has(shiftId)) {
+        state.applications.delete(shiftId);
+        showToast("Candidatura demonstrativa cancelada.");
+      } else {
+        state.applications.add(shiftId);
+        showToast("Interesse registrado somente neste aparelho.");
+      }
+      storage.set(perUserKey("applications"), Array.from(state.applications));
+      renderShifts();
     });
 
     $$("[data-medicine-filter]").forEach((button) => {
@@ -900,19 +998,6 @@
       renderMedicines();
     });
 
-    $("#shift-list").addEventListener("click", (event) => {
-      const applyButton = event.target.closest("[data-apply-shift]");
-      const mapButton = event.target.closest("[data-open-map]");
-      if (mapButton) setActiveTab("mapa");
-      if (!applyButton) return;
-      const id = applyButton.dataset.applyShift;
-      if (state.applications.has(id)) return;
-      state.applications.add(id);
-      storage.set("osistec_applications", Array.from(state.applications));
-      renderShifts();
-      showToast("Interesse demonstrativo registrado neste aparelho.");
-    });
-
     $("#medicine-list").addEventListener("click", (event) => {
       const reserveButton = event.target.closest("[data-reserve-medicine]");
       const mapButton = event.target.closest("[data-open-map]");
@@ -925,7 +1010,7 @@
       const id = $("#reserve-medicine-id").value;
       if (id) {
         state.reservations.add(id);
-        storage.set("osistec_reservations", Array.from(state.reservations));
+        storage.set(perUserKey("reservations"), Array.from(state.reservations));
       }
       $("#reserve-dialog").close();
       renderMedicines();
@@ -942,11 +1027,10 @@
   }
 
   function init() {
-    renderShifts();
-    renderMedicines();
     bindEvents();
     initSpeechRecognition();
-    initMap();
+    window.addEventListener("osistec:authchange", (event) => applyAuthenticatedUser(event.detail.user));
+    window.OSISTECAuth?.init();
     registerServiceWorker();
   }
 

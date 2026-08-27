@@ -1,32 +1,42 @@
 # OSISTEC
 
-Protótipo mobile em HTML, CSS e JavaScript para localizar atendimento de saúde próximo.
+Protótipo mobile em HTML, CSS e JavaScript para pacientes e médicos em Mogi Guaçu (SP).
 
-## Como funciona
+## Acesso e perfis
 
-1. A tela principal abre o mapa sempre centralizado em Mogi Guaçu (SP).
-2. A pessoa toca no microfone e descreve o que está sentindo. Também existe uma busca por texto para acessibilidade e navegadores sem reconhecimento de voz.
+- É necessário criar uma conta local escolhendo **Paciente** ou **Médico**.
+- O paciente acessa somente **Mapa** e **Farmácia**.
+- O médico acessa **Plantões**, **Mapa** e **Farmácia**.
+- A conta, o perfil e as ações demonstrativas ficam apenas no navegador deste aparelho.
+- A senha não é salva em texto: o navegador usa PBKDF2 e SHA-256 com salt. Ainda assim, esta autenticação local é apenas para protótipo e não substitui um servidor seguro.
+- Há recuperação local de senha, edição de perfil, sair da conta e exclusão da conta.
+
+## Mapa principal
+
+1. O aplicativo abre sempre no mapa centralizado em Mogi Guaçu.
+2. A pessoa fala ou digita o que está sentindo.
 3. O protótipo classifica a necessidade informada sem realizar diagnóstico.
-4. Entre as unidades compatíveis, elimina as marcadas como lotadas e indica a mais próxima.
-5. A rota é desenhada no mapa automaticamente a partir do centro de Mogi Guaçu, com distância e tempo estimados. O botão **Abrir no GPS** continua a navegação no Google Maps usando a localização do aparelho.
+4. Entre as unidades compatíveis, elimina as marcadas como lotadas e indica a opção mais próxima.
+5. A rota é desenhada automaticamente a partir do centro de Mogi Guaçu. O botão **Abrir no GPS** continua a navegação no Google Maps.
 
-As abas laterais mantêm os exemplos de plantões profissionais e consulta de medicamentos.
+## Área médica
 
-## Dados e limites do protótipo
+A aba Plantões aparece exclusivamente para contas cadastradas como médico. CRM, especialidade, vagas e candidaturas têm caráter demonstrativo; não existe consulta a conselho profissional ou envio para hospitais.
 
-- A localização das unidades de Mogi Guaçu é consultada no OpenStreetMap quando a internet está disponível.
-- A lotação, o tempo de espera, os plantões, os estoques, os preços, as reservas e os check-ins são dados demonstrativos.
-- Se a consulta de unidades falhar, o app usa unidades fictícias próximas ao centro de Mogi Guaçu para demonstrar o fluxo.
-- O app não faz diagnóstico nem substitui orientação profissional.
+## Dados e limites
 
-## Publicação
+- A localização das unidades é consultada no OpenStreetMap quando a internet está disponível.
+- Lotação, espera, estoques, preços, reservas, check-ins, plantões e candidaturas são demonstrativos.
+- Se a consulta de unidades falhar, o app usa unidades fictícias próximas ao centro de Mogi Guaçu.
+- O app não faz diagnóstico, não armazena prontuário e não substitui orientação profissional.
+- Como não há backend, limpar os dados do navegador remove as contas e os registros locais.
 
-O projeto é estático e pode ser publicado diretamente pelo GitHub Pages. O microfone exige uma origem segura (`https://`) e a permissão da pessoa usuária.
+## Como abrir
 
-Para abrir localmente, sirva a pasta com um servidor HTTP. Exemplo:
+Sirva a pasta por HTTP para que o login criptografado, o mapa, o PWA e o microfone funcionem corretamente:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Depois, abra `http://localhost:8000`. A busca por voz depende do suporte do navegador; Chrome e Edge costumam oferecer a melhor compatibilidade, enquanto a busca digitada funciona como alternativa.
+Depois, abra `http://localhost:8000`. Em produção estática, o projeto pode ser publicado pelo GitHub Pages com HTTPS.
