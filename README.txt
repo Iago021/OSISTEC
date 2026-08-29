@@ -17,6 +17,10 @@ FUNCIONALIDADES
 - Busca por fala ou texto e indicação demonstrativa de unidade não lotada.
 - Rota no mapa, check-in, farmácia, reserva e candidatura a plantões.
 - Aba Meus registros com medicamentos reservados e plantões escolhidos.
+- Central de notificações com contador de itens não lidos.
+- Opção de mostrar ou ocultar a senha digitada.
+- Erros de cadastro exibidos junto ao botão Criar minha conta.
+- Mapa centralizado na navegação inferior.
 - Dados de cada conta separados no navegador.
 - No computador, o aplicativo aparece em uma moldura de celular para facilitar apresentações.
 

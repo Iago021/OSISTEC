@@ -412,6 +412,7 @@
       `osistec_applications_${userId}`,
       `osistec_reservations_${userId}`,
       `osistec_checkins_${userId}`,
+      `osistec_notifications_read_${userId}`,
     ].forEach((key) => window.localStorage.removeItem(key));
     clearSession();
     closeDialog($("#profile-dialog"));
@@ -466,6 +467,17 @@
       });
     });
     $$("input[name='register-role']").forEach((input) => input.addEventListener("change", updateDoctorFields));
+    $$("[data-password-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+        if (!input) return;
+        const willShow = input.type === "password";
+        input.type = willShow ? "text" : "password";
+        button.setAttribute("aria-pressed", String(willShow));
+        button.setAttribute("aria-label", willShow ? "Ocultar senha" : "Mostrar senha");
+        $("span", button).textContent = willShow ? "Ocultar" : "Mostrar";
+      });
+    });
     $("#login-form").addEventListener("submit", handleLogin);
     $("#register-form").addEventListener("submit", handleRegister);
     $("#profile-form").addEventListener("submit", handleProfileSave);

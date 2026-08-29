@@ -47,6 +47,7 @@
       <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></symbol>
       <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 10v7M14 10v7"></path></symbol>
       <symbol id="icon-clipboard" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"></rect><path d="M9 4V2h6v2M8 10h8M8 14h8M8 18h5"></path></symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></symbol>
     </svg>
 
     <main class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
@@ -71,7 +72,7 @@
           <form class="auth-form" id="login-form" aria-labelledby="auth-tab-login">
             <div class="form-message" id="login-message" role="alert" aria-live="polite" hidden></div>
             <label class="form-field" for="login-email"><span>E-mail</span><input id="login-email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="voce@exemplo.com" required /></label>
-            <label class="form-field" for="login-password"><span>Senha</span><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required /></label>
+            <div class="form-field"><label for="login-password">Senha</label><div class="password-input"><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required /><button type="button" data-password-toggle="login-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
             <div class="login-options">
               <label class="check-field"><input id="login-remember" type="checkbox" checked /><span>Manter conectado</span></label>
               <button class="link-button" id="forgot-password-button" type="button">Esqueci a senha</button>
@@ -79,8 +80,7 @@
             <button class="auth-submit" type="submit">Entrar no OSISTEC</button>
           </form>
 
-          <form class="auth-form" id="register-form" aria-labelledby="auth-tab-register" hidden>
-            <div class="form-message" id="register-message" role="alert" aria-live="polite" hidden></div>
+          <form class="auth-form" id="register-form" aria-labelledby="auth-tab-register" novalidate hidden>
             <fieldset class="role-fieldset">
               <legend>Como você vai usar o OSISTEC?</legend>
               <div class="role-options">
@@ -106,11 +106,12 @@
             </div>
 
             <div class="form-row">
-              <label class="form-field" for="register-password"><span>Senha</span><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required /></label>
-              <label class="form-field" for="register-confirm-password"><span>Confirmar senha</span><input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repita a senha" required /></label>
+              <div class="form-field"><label for="register-password">Senha</label><div class="password-input"><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required /><button type="button" data-password-toggle="register-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+              <div class="form-field"><label for="register-confirm-password">Confirmar senha</label><div class="password-input"><input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repita a senha" required /><button type="button" data-password-toggle="register-confirm-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
             </div>
             <p class="password-help">Use pelo menos 8 caracteres, com letra maiúscula, minúscula e número.</p>
             <label class="check-field check-field--terms"><input id="register-terms" type="checkbox" required /><span>Entendo que este é um protótipo local e não usarei dados médicos reais.</span></label>
+            <div class="form-message register-message" id="register-message" role="alert" aria-live="assertive" hidden></div>
             <button class="auth-submit" type="submit">Criar minha conta</button>
           </form>
 
@@ -127,7 +128,7 @@
         </div>
         <div class="header-actions">
           <button class="icon-button" type="button" id="notification-button" aria-label="Ver notificações">
-            <svg><use href="#icon-bell"></use></svg><span class="notification-dot" aria-hidden="true"></span>
+            <svg><use href="#icon-bell"></use></svg><span class="notification-count" id="notification-count" aria-hidden="true" hidden>0</span>
           </button>
           <button class="profile-button" type="button" id="profile-button" aria-label="Abrir meu perfil">
             <span id="profile-initial">U</span><small id="profile-first-name">Perfil</small>
@@ -156,7 +157,6 @@
           </div>
           <div class="section-toolbar section-toolbar--results">
             <div class="section-title-group"><h2>Oportunidades</h2><span id="shift-count">0 plantões</span></div>
-            <span class="demo-pill">Dados demo</span>
           </div>
           <div class="card-list" id="shift-list" aria-live="polite"></div>
           <article class="soft-note"><svg><use href="#icon-alert"></use></svg><p>Os plantões e as candidaturas são fictícios. O CRM ainda não é consultado em uma base oficial.</p></article>
@@ -226,7 +226,7 @@
             <button class="filter-chip medicine-filter" type="button" data-medicine-filter="publica">Rede pública</button>
             <button class="filter-chip medicine-filter" type="button" data-medicine-filter="parceira">Parceiras</button>
           </div>
-          <div class="section-toolbar section-toolbar--results"><div class="section-title-group"><h2>Disponíveis agora</h2><span id="medicine-count">4 resultados</span></div><span class="demo-pill">Dados demo</span></div>
+          <div class="section-toolbar section-toolbar--results"><div class="section-title-group"><h2>Disponíveis agora</h2><span id="medicine-count">4 resultados</span></div></div>
           <div class="card-list" id="medicine-list" aria-live="polite"></div>
           <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Preços, estoques e reservas são fictícios. Medicamentos sujeitos a receita precisam de validação.</p></article>
         </section>
@@ -245,7 +245,6 @@
           <section class="records-section" aria-labelledby="records-medicine-title">
             <div class="section-toolbar section-toolbar--results">
               <div class="section-title-group"><h2 id="records-medicine-title">Medicamentos reservados</h2><span id="records-medicine-count">0 reservas</span></div>
-              <span class="demo-pill">Dados demo</span>
             </div>
             <div class="card-list" id="records-medicine-list" aria-live="polite"></div>
           </section>
@@ -253,7 +252,6 @@
           <section class="records-section" id="records-shift-section" data-role-only="doctor" aria-labelledby="records-shift-title" hidden>
             <div class="section-toolbar section-toolbar--results">
               <div class="section-title-group"><h2 id="records-shift-title">Plantões escolhidos</h2><span id="records-shift-count">0 candidaturas</span></div>
-              <span class="demo-pill">Dados demo</span>
             </div>
             <div class="card-list" id="records-shift-list" aria-live="polite"></div>
           </section>
@@ -264,8 +262,8 @@
 
       <nav class="bottom-tabs" id="bottom-tabs" role="tablist" aria-label="Áreas do aplicativo">
         <button type="button" id="tab-plantoes" role="tab" aria-controls="panel-plantoes" aria-selected="false" tabindex="-1" data-tab="plantoes" data-role-only="doctor" hidden><span class="tab-icon"><svg><use href="#icon-briefcase"></use></svg></span><span>Plantões</span></button>
-        <button class="tab-primary is-active" type="button" id="tab-mapa" role="tab" aria-controls="panel-mapa" aria-selected="true" data-tab="mapa"><span class="tab-icon"><svg><use href="#icon-map"></use></svg></span><span>Mapa</span></button>
         <button type="button" id="tab-farmacia" role="tab" aria-controls="panel-farmacia" aria-selected="false" tabindex="-1" data-tab="farmacia"><span class="tab-icon"><svg><use href="#icon-pill"></use></svg></span><span>Farmácia</span></button>
+        <button class="tab-primary is-active" type="button" id="tab-mapa" role="tab" aria-controls="panel-mapa" aria-selected="true" data-tab="mapa"><span class="tab-icon"><svg><use href="#icon-map"></use></svg></span><span>Mapa</span></button>
         <button type="button" id="tab-registros" role="tab" aria-controls="panel-registros" aria-selected="false" tabindex="-1" data-tab="registros"><span class="tab-icon"><svg><use href="#icon-clipboard"></use></svg></span><span>Registros</span></button>
       </nav>
     </div>
@@ -300,6 +298,16 @@
       </form>
     </dialog>
 
+    <dialog class="app-dialog notification-dialog" id="notification-dialog" aria-labelledby="notification-title">
+      <section class="dialog-content">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading"><div><span class="eyebrow">Atualizações da conta</span><h2 id="notification-title">Notificações</h2></div><button class="dialog-close" type="button" data-close-notifications aria-label="Fechar notificações"><svg><use href="#icon-close"></use></svg></button></div>
+        <p class="notification-summary" id="notification-summary">Confira suas atualizações recentes.</p>
+        <div class="notification-list" id="notification-list" aria-live="polite"></div>
+        <button class="notification-read-button" id="notification-read-button" type="button">Marcar todas como lidas</button>
+      </section>
+    </dialog>
+
     <dialog class="app-dialog" id="reset-password-dialog" aria-labelledby="reset-password-title">
       <form id="reset-password-form">
         <div class="dialog-grabber" aria-hidden="true"></div>
@@ -307,8 +315,8 @@
         <p class="dialog-note">Não enviaremos e-mail: a senha será alterada apenas para a conta salva neste aparelho.</p>
         <div class="form-message" id="reset-password-message" role="alert" aria-live="polite" hidden></div>
         <label class="form-field" for="reset-password-email"><span>E-mail da conta</span><input id="reset-password-email" name="email" type="email" inputmode="email" autocomplete="username" required /></label>
-        <label class="form-field" for="reset-password-new"><span>Nova senha</span><input id="reset-password-new" name="password" type="password" autocomplete="new-password" minlength="8" required /></label>
-        <label class="form-field" for="reset-password-confirm"><span>Confirmar nova senha</span><input id="reset-password-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required /></label>
+        <div class="form-field"><label for="reset-password-new">Nova senha</label><div class="password-input"><input id="reset-password-new" name="password" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-new" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+        <div class="form-field"><label for="reset-password-confirm">Confirmar nova senha</label><div class="password-input"><input id="reset-password-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-confirm" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
         <button class="primary-button" type="submit">Alterar senha local</button>
       </form>
     </dialog>

@@ -11,6 +11,10 @@ Protótipo mobile em HTML, CSS e JavaScript para pacientes e médicos em Mogi Gu
 - A senha não é salva em texto: o navegador usa PBKDF2 e SHA-256 com salt. Ainda assim, esta autenticação local é apenas para protótipo e não substitui um servidor seguro.
 - Há recuperação local de senha, edição de perfil, sair da conta e exclusão da conta.
 - A aba **Meus registros** reúne os medicamentos reservados e, para médicos, os plantões escolhidos. As escolhas podem ser canceladas na própria aba.
+- Os campos de senha permitem alternar entre mostrar e ocultar o conteúdo digitado.
+- Erros de cadastro aparecem junto ao botão **Criar minha conta**.
+- O botão de notificações abre uma central com reservas, plantões, check-ins e atualizações não lidas.
+- O botão **Mapa** permanece centralizado na navegação inferior.
 
 ## Apresentação no computador
 

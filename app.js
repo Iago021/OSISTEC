@@ -138,6 +138,7 @@
     applications: new Set(),
     reservations: new Set(),
     checkins: new Set(),
+    readNotifications: new Set(),
     map: null,
     markerLayer: null,
     routeLayer: null,
@@ -903,6 +904,103 @@
     }
   }
 
+  function notificationItems() {
+    if (!state.user) return [];
+    const items = [];
+
+    state.reservations.forEach((medicineId) => {
+      const medicine = medicines.find((item) => item.id === medicineId);
+      if (!medicine) return;
+      items.push({
+        id: `medicine-${medicine.id}`,
+        iconId: "icon-pill",
+        title: "Medicamento reservado",
+        detail: `${medicine.name} em ${medicine.place}.`,
+        tab: "registros",
+      });
+    });
+
+    if (state.user.role === "doctor") {
+      state.applications.forEach((shiftId) => {
+        const shift = shifts.find((item) => item.id === shiftId);
+        if (!shift) return;
+        items.push({
+          id: `shift-${shift.id}`,
+          iconId: "icon-briefcase",
+          title: "Plantão registrado",
+          detail: `${shift.title} · ${shiftDateLabel(shift.dayOffset)}.`,
+          tab: "registros",
+        });
+      });
+      items.push({
+        id: "available-shifts",
+        iconId: "icon-clock",
+        title: "Plantões disponíveis",
+        detail: `${shifts.length} oportunidades estão abertas em Mogi Guaçu.`,
+        tab: "plantoes",
+      });
+    }
+
+    if (state.checkins.size) {
+      items.push({
+        id: `checkins-${Array.from(state.checkins).sort().join("-")}`,
+        iconId: "icon-hospital",
+        title: "Check-in confirmado",
+        detail: `${state.checkins.size} ${state.checkins.size === 1 ? "check-in está salvo" : "check-ins estão salvos"} neste aparelho.`,
+        tab: "mapa",
+      });
+    }
+
+    items.push({
+      id: "account-ready",
+      iconId: "icon-shield",
+      title: "Conta pronta para uso",
+      detail: "Suas escolhas e atualizações ficam organizadas neste navegador.",
+      tab: "registros",
+    });
+    return items;
+  }
+
+  function notificationCard(item) {
+    const isRead = state.readNotifications.has(item.id);
+    return `
+      <button class="notification-item${isRead ? " is-read" : ""}" type="button" data-notification-id="${escapeHtml(item.id)}" data-notification-tab="${escapeHtml(item.tab)}">
+        <span class="notification-item__icon">${icon(item.iconId)}</span>
+        <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.detail)}</small></span>
+        <i aria-label="${isRead ? "Lida" : "Não lida"}"></i>
+      </button>`;
+  }
+
+  function renderNotifications() {
+    if (!state.user) return;
+    const items = notificationItems();
+    const unreadCount = items.filter((item) => !state.readNotifications.has(item.id)).length;
+    const badge = $("#notification-count");
+    badge.textContent = unreadCount > 9 ? "9+" : String(unreadCount);
+    badge.hidden = unreadCount === 0;
+    $("#notification-button").setAttribute("aria-label", unreadCount
+      ? `Ver notificações: ${unreadCount} ${unreadCount === 1 ? "não lida" : "não lidas"}`
+      : "Ver notificações");
+    $("#notification-summary").textContent = unreadCount
+      ? `Você tem ${unreadCount} ${unreadCount === 1 ? "atualização não lida" : "atualizações não lidas"}.`
+      : "Todas as atualizações foram lidas.";
+    $("#notification-list").innerHTML = items.map(notificationCard).join("");
+    $("#notification-read-button").disabled = unreadCount === 0;
+  }
+
+  function openNotifications() {
+    renderNotifications();
+    const dialog = $("#notification-dialog");
+    if (typeof dialog.showModal === "function") dialog.showModal();
+    else dialog.setAttribute("open", "");
+  }
+
+  function closeNotifications() {
+    const dialog = $("#notification-dialog");
+    if (typeof dialog.close === "function" && dialog.open) dialog.close();
+    else dialog.removeAttribute("open");
+  }
+
   function perUserKey(type) {
     return `osistec_${type}_${state.user?.id || "sem-conta"}`;
   }
@@ -932,6 +1030,7 @@
     state.applications = new Set(storage.get(perUserKey("applications")));
     state.reservations = new Set(storage.get(perUserKey("reservations")));
     state.checkins = new Set(storage.get(perUserKey("checkins")));
+    state.readNotifications = new Set(storage.get(perUserKey("notifications_read")));
     resetPrivateScreen();
     renderMedicines();
 
@@ -945,6 +1044,7 @@
     }
 
     renderRecords();
+    renderNotifications();
 
     setActiveTab("mapa");
     if (!state.map) initMap();
@@ -1011,10 +1111,28 @@
       event.currentTarget.classList.add("is-complete");
       event.currentTarget.textContent = "Check-in confirmado";
       showToast("Check-in demonstrativo salvo neste aparelho.");
+      renderNotifications();
     });
 
-    $("#notification-button").addEventListener("click", () => {
-      showToast(state.user?.role === "doctor" ? "Há plantões demonstrativos disponíveis em Mogi Guaçu." : "Você não tem novas notificações.");
+    $("#notification-button").addEventListener("click", openNotifications);
+    $("[data-close-notifications]").addEventListener("click", closeNotifications);
+    $("#notification-read-button").addEventListener("click", () => {
+      state.readNotifications = new Set(notificationItems().map((item) => item.id));
+      storage.set(perUserKey("notifications_read"), Array.from(state.readNotifications));
+      renderNotifications();
+      showToast("Notificações marcadas como lidas.");
+    });
+    $("#notification-list").addEventListener("click", (event) => {
+      const item = event.target.closest("[data-notification-id]");
+      if (!item) return;
+      state.readNotifications.add(item.dataset.notificationId);
+      storage.set(perUserKey("notifications_read"), Array.from(state.readNotifications));
+      const targetTab = item.dataset.notificationTab;
+      renderNotifications();
+      if (targetTab) {
+        closeNotifications();
+        setActiveTab(targetTab);
+      }
     });
 
     $$("[data-shift-filter]").forEach((button) => {
@@ -1040,6 +1158,7 @@
       storage.set(perUserKey("applications"), Array.from(state.applications));
       renderShifts();
       renderRecords();
+      renderNotifications();
     });
 
     $$("[data-medicine-filter]").forEach((button) => {
@@ -1078,6 +1197,7 @@
       $("#reserve-dialog").close();
       renderMedicines();
       renderRecords();
+      renderNotifications();
       showToast("Reserva demonstrativa salva por 20 minutos.");
     });
 
@@ -1098,6 +1218,7 @@
         storage.set(perUserKey("reservations"), Array.from(state.reservations));
         renderMedicines();
         renderRecords();
+        renderNotifications();
         showToast("Reserva demonstrativa cancelada.");
         return;
       }
@@ -1107,6 +1228,7 @@
         storage.set(perUserKey("applications"), Array.from(state.applications));
         renderShifts();
         renderRecords();
+        renderNotifications();
         showToast("Candidatura demonstrativa cancelada.");
       }
     });
