@@ -63,7 +63,7 @@
 
   async function derivePassword(password, salt, iterations = PASSWORD_ITERATIONS) {
     if (!window.crypto?.subtle) {
-      throw new Error("A criptografia local exige HTTPS ou localhost.");
+      throw new Error("A criptografia exige uma conexão HTTPS.");
     }
     const keyMaterial = await window.crypto.subtle.importKey(
       "raw",
@@ -248,7 +248,7 @@
   }
 
   function validateDoctor({ crm, crmState, specialty }) {
-    if (digitsOnly(crm).length < 4) return "Informe um CRM válido para este protótipo.";
+    if (digitsOnly(crm).length < 4) return "Informe um CRM com pelo menos 4 números.";
     if (!/^[A-Z]{2}$/.test(String(crmState || "").toUpperCase())) return "Informe a UF do CRM.";
     if (normalizeSpaces(specialty).length < 2) return "Informe a especialidade médica.";
     return "";
@@ -264,7 +264,7 @@
 
     const account = readAccounts().find((item) => normalizeEmail(item.email) === email);
     if (!account) {
-      setMessage(message, "Conta não encontrada neste aparelho. Crie uma conta primeiro.");
+      setMessage(message, "Conta não encontrada. Crie uma conta primeiro.");
       return;
     }
 
@@ -308,7 +308,7 @@
     if (profileError) return setMessage(message, profileError);
     if (!/^\S+@\S+\.\S+$/.test(values.email)) return setMessage(message, "Informe um e-mail válido.");
     if (readAccounts().some((item) => normalizeEmail(item.email) === values.email)) {
-      return setMessage(message, "Já existe uma conta com este e-mail neste aparelho.");
+      return setMessage(message, "Já existe uma conta com este e-mail.");
     }
     if (role === "doctor") {
       const doctorError = validateDoctor(values);
@@ -318,7 +318,7 @@
       return setMessage(message, "A senha precisa ter 8 caracteres, maiúscula, minúscula e número.");
     }
     if (password !== confirmation) return setMessage(message, "As senhas não coincidem.");
-    if (!$("#register-terms").checked) return setMessage(message, "Confirme que entende os limites do protótipo.");
+    if (!$("#register-terms").checked) return setMessage(message, "Confirme que entende os limites desta versão.");
 
     setBusy(form, true, "Criando conta…");
     try {
@@ -337,7 +337,7 @@
       };
       const accounts = readAccounts();
       accounts.push(account);
-      if (!writeAccounts(accounts)) throw new Error("Não foi possível salvar a conta neste navegador.");
+      if (!writeAccounts(accounts)) throw new Error("Não foi possível criar a conta. Tente novamente.");
       setSession(account.id, true);
       form.reset();
       $("input[name='register-role'][value='patient']").checked = true;
@@ -378,7 +378,7 @@
 
     const accounts = readAccounts();
     const index = accounts.findIndex((account) => account.id === currentUser.id);
-    if (index < 0) return presentLogin("A conta não está mais disponível neste aparelho.");
+    if (index < 0) return presentLogin("A conta não está mais disponível.");
     accounts[index] = {
       ...accounts[index],
       ...values,
@@ -389,7 +389,7 @@
     };
     if (!writeAccounts(accounts)) return setMessage(message, "Não foi possível salvar as alterações.");
     presentUser(accounts[index]);
-    setMessage(message, "Perfil atualizado neste aparelho.", "success");
+    setMessage(message, "Perfil atualizado com sucesso.", "success");
   }
 
   function logout() {
@@ -400,7 +400,7 @@
 
   function deleteAccount() {
     if (!currentUser) return;
-    const confirmed = window.confirm("Excluir esta conta local e suas ações salvas neste aparelho?");
+    const confirmed = window.confirm("Excluir esta conta e todas as ações salvas?");
     if (!confirmed) return;
     const userId = currentUser.id;
     const accounts = readAccounts().filter((account) => account.id !== userId);
@@ -416,7 +416,7 @@
     ].forEach((key) => window.localStorage.removeItem(key));
     clearSession();
     closeDialog($("#profile-dialog"));
-    presentLogin("Conta local excluída.");
+    presentLogin("Conta excluída.");
   }
 
   async function handlePasswordReset(event) {
@@ -430,7 +430,7 @@
 
     const accounts = readAccounts();
     const index = accounts.findIndex((account) => normalizeEmail(account.email) === email);
-    if (index < 0) return setMessage(message, "Conta não encontrada neste aparelho.");
+    if (index < 0) return setMessage(message, "Conta não encontrada.");
     if (!validPassword(password)) {
       return setMessage(message, "A senha precisa ter 8 caracteres, maiúscula, minúscula e número.");
     }
@@ -448,7 +448,7 @@
       form.reset();
       closeDialog($("#reset-password-dialog"));
       $("#login-email").value = email;
-      setMessage($("#login-message"), "Senha local alterada. Entre com a nova senha.", "success");
+      setMessage($("#login-message"), "Senha alterada. Entre com a nova senha.", "success");
       $("#login-password").focus();
     } catch (error) {
       setMessage(message, error.message || "Não foi possível alterar a senha.");

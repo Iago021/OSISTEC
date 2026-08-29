@@ -44,8 +44,9 @@ body {
 }
 
 button, input, select { color: inherit; font: inherit; }
+button, a, input, select, label, [role="tab"] { touch-action: manipulation; }
 button, a { -webkit-tap-highlight-color: transparent; }
-button { border: 0; cursor: pointer; }
+button { border: 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
 
 button:focus-visible,
 input:focus-visible,
@@ -118,23 +119,8 @@ svg {
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
 }
-.auth-intro h1 { margin: 12px 0 5px; font-size: clamp(1.6rem, 8vw, 2.2rem); line-height: 1.05; letter-spacing: -0.045em; }
+.auth-intro h1 { margin: 0 0 5px; font-size: clamp(1.6rem, 8vw, 2.2rem); line-height: 1.05; letter-spacing: -0.045em; }
 .auth-intro p { margin: 0; color: var(--muted); font-size: 0.76rem; line-height: 1.55; }
-.local-badge {
-  display: inline-flex;
-  min-height: 29px;
-  align-items: center;
-  gap: 6px;
-  padding: 0 10px;
-  border-radius: 999px;
-  background: var(--teal-soft);
-  color: var(--teal-dark);
-  font-size: 0.64rem;
-  font-weight: 850;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-.local-badge svg { width: 15px; height: 15px; }
 .auth-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -247,19 +233,6 @@ svg {
 .doctor-fields-heading strong { font-size: 0.72rem; }
 .doctor-fields-heading small { margin-top: 3px; color: var(--muted); font-size: 0.61rem; line-height: 1.4; }
 .password-help { margin: -7px 0 0; color: var(--muted); font-size: 0.61rem; line-height: 1.4; }
-.auth-security-note {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  margin: 18px 0 0;
-  padding-top: 15px;
-  border-top: 1px solid var(--line);
-  color: var(--muted);
-  font-size: 0.61rem;
-  line-height: 1.5;
-}
-.auth-security-note svg { width: 16px; height: 16px; flex: 0 0 auto; color: var(--teal-dark); }
-
 .app-shell {
   position: relative;
   width: 100%;

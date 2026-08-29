@@ -727,7 +727,7 @@
   function initSpeechRecognition() {
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      $("#voice-button").title = "Busca por voz indisponível neste navegador; toque para digitar";
+      $("#voice-button").title = "Busca por voz indisponível; toque para digitar";
       return;
     }
 
@@ -946,7 +946,7 @@
         id: `checkins-${Array.from(state.checkins).sort().join("-")}`,
         iconId: "icon-hospital",
         title: "Check-in confirmado",
-        detail: `${state.checkins.size} ${state.checkins.size === 1 ? "check-in está salvo" : "check-ins estão salvos"} neste aparelho.`,
+        detail: `${state.checkins.size} ${state.checkins.size === 1 ? "check-in confirmado" : "check-ins confirmados"}.`,
         tab: "mapa",
       });
     }
@@ -955,7 +955,7 @@
       id: "account-ready",
       iconId: "icon-shield",
       title: "Conta pronta para uso",
-      detail: "Suas escolhas e atualizações ficam organizadas neste navegador.",
+      detail: "Suas escolhas e atualizações ficam organizadas em Meus registros.",
       tab: "registros",
     });
     return items;
@@ -1110,7 +1110,7 @@
       storage.set(perUserKey("checkins"), Array.from(state.checkins));
       event.currentTarget.classList.add("is-complete");
       event.currentTarget.textContent = "Check-in confirmado";
-      showToast("Check-in demonstrativo salvo neste aparelho.");
+      showToast("Check-in demonstrativo confirmado.");
       renderNotifications();
     });
 
@@ -1153,7 +1153,7 @@
         showToast("Candidatura demonstrativa cancelada.");
       } else {
         state.applications.add(shiftId);
-        showToast("Interesse registrado somente neste aparelho.");
+        showToast("Interesse registrado com sucesso.");
       }
       storage.set(perUserKey("applications"), Array.from(state.applications));
       renderShifts();
@@ -1236,7 +1236,14 @@
 
   function registerServiceWorker() {
     if ("serviceWorker" in navigator && window.location.protocol !== "file:") {
-      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+          await registration.update();
+        } catch {
+          // O aplicativo continua funcional quando o modo offline não está disponível.
+        }
+      });
     }
   }
 

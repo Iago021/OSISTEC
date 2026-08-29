@@ -7,22 +7,22 @@
     <meta name="description" content="OSISTEC: atendimento em Mogi Guaçu para pacientes e médicos." />
     <title>OSISTEC — Saúde conectada</title>
     <link rel="icon" href="assets/osistec-logo.jpeg" />
-    <link rel="manifest" href="manifest.webmanifest" />
+    <link rel="manifest" href="manifest.webmanifest?v=9" />
     <link
       rel="stylesheet"
       href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
       integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
       crossorigin=""
     />
-    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="style.css?v=9" />
     <script
       src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
       integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
       crossorigin=""
       defer
     ></script>
-    <script src="auth.js" defer></script>
-    <script src="app.js" defer></script>
+    <script src="auth.js?v=9" defer></script>
+    <script src="app.js?v=9" defer></script>
   </head>
   <body>
     <svg class="svg-sprite" aria-hidden="true">
@@ -59,9 +59,8 @@
 
         <section class="auth-card">
           <div class="auth-intro">
-            <span class="local-badge"><svg><use href="#icon-shield"></use></svg>Protótipo local</span>
             <h1 id="auth-title">Acesse seu espaço</h1>
-            <p>Entre como paciente ou médico. Seus dados ficam somente neste aparelho.</p>
+            <p>Entre como paciente ou médico e acesse os recursos do OSISTEC.</p>
           </div>
 
           <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
@@ -110,12 +109,10 @@
               <div class="form-field"><label for="register-confirm-password">Confirmar senha</label><div class="password-input"><input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repita a senha" required /><button type="button" data-password-toggle="register-confirm-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
             </div>
             <p class="password-help">Use pelo menos 8 caracteres, com letra maiúscula, minúscula e número.</p>
-            <label class="check-field check-field--terms"><input id="register-terms" type="checkbox" required /><span>Entendo que este é um protótipo local e não usarei dados médicos reais.</span></label>
+            <label class="check-field check-field--terms"><input id="register-terms" type="checkbox" required /><span>Entendo que esta é uma versão de apresentação e não usarei dados médicos reais.</span></label>
             <div class="form-message register-message" id="register-message" role="alert" aria-live="assertive" hidden></div>
             <button class="auth-submit" type="submit">Criar minha conta</button>
           </form>
-
-          <p class="auth-security-note"><svg><use href="#icon-lock"></use></svg><span>A senha é transformada em hash antes de ser salva. Mesmo assim, esta versão não substitui um sistema seguro de produção.</span></p>
         </section>
       </div>
     </main>
@@ -146,7 +143,7 @@
           <article class="doctor-summary">
             <span class="doctor-summary__avatar" id="doctor-summary-initial">M</span>
             <div><strong id="doctor-summary-name">Médico</strong><span id="doctor-summary-credential">CRM —</span><small id="doctor-summary-specialty">Especialidade</small></div>
-            <span class="credential-badge"><svg><use href="#icon-shield"></use></svg>Validação local</span>
+            <span class="credential-badge"><svg><use href="#icon-shield"></use></svg>Cadastro profissional</span>
           </article>
 
           <div class="filter-row" role="group" aria-label="Filtrar plantões">
@@ -233,7 +230,7 @@
 
         <section class="app-panel scroll-panel records-panel" id="panel-registros" role="tabpanel" aria-labelledby="tab-registros" hidden>
           <div class="screen-heading">
-            <div><span class="eyebrow">Salvos neste aparelho</span><h1>Meus registros</h1><p>Acompanhe as escolhas feitas nesta conta.</p></div>
+            <div><span class="eyebrow">Suas escolhas</span><h1>Meus registros</h1><p>Acompanhe as escolhas feitas nesta conta.</p></div>
             <span class="screen-icon screen-icon--mint"><svg><use href="#icon-clipboard"></use></svg></span>
           </div>
 
@@ -256,7 +253,7 @@
             <div class="card-list" id="records-shift-list" aria-live="polite"></div>
           </section>
 
-          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Estes registros são demonstrativos e ficam somente neste navegador. Eles não são enviados a hospitais ou farmácias.</p></article>
+          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Estes registros são demonstrativos e não são enviados a hospitais ou farmácias.</p></article>
         </section>
       </main>
 
@@ -272,7 +269,7 @@
       <form id="profile-form">
         <div class="dialog-grabber" aria-hidden="true"></div>
         <div class="dialog-heading">
-          <div><span class="eyebrow">Conta local</span><h2 id="profile-title">Meu perfil</h2></div>
+          <div><span class="eyebrow">Minha conta</span><h2 id="profile-title">Meu perfil</h2></div>
           <button class="dialog-close" type="button" data-close-profile aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
         </div>
         <div class="profile-identity"><span id="profile-dialog-initial">U</span><p><strong id="profile-dialog-name">Usuário</strong><small id="profile-dialog-role">Paciente</small></p></div>
@@ -311,13 +308,13 @@
     <dialog class="app-dialog" id="reset-password-dialog" aria-labelledby="reset-password-title">
       <form id="reset-password-form">
         <div class="dialog-grabber" aria-hidden="true"></div>
-        <div class="dialog-heading"><div><span class="eyebrow">Recuperação local</span><h2 id="reset-password-title">Criar nova senha</h2></div><button class="dialog-close" type="button" data-close-reset aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button></div>
-        <p class="dialog-note">Não enviaremos e-mail: a senha será alterada apenas para a conta salva neste aparelho.</p>
+        <div class="dialog-heading"><div><span class="eyebrow">Recuperar acesso</span><h2 id="reset-password-title">Criar nova senha</h2></div><button class="dialog-close" type="button" data-close-reset aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button></div>
+        <p class="dialog-note">Defina uma nova senha para acessar sua conta.</p>
         <div class="form-message" id="reset-password-message" role="alert" aria-live="polite" hidden></div>
         <label class="form-field" for="reset-password-email"><span>E-mail da conta</span><input id="reset-password-email" name="email" type="email" inputmode="email" autocomplete="username" required /></label>
         <div class="form-field"><label for="reset-password-new">Nova senha</label><div class="password-input"><input id="reset-password-new" name="password" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-new" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
         <div class="form-field"><label for="reset-password-confirm">Confirmar nova senha</label><div class="password-input"><input id="reset-password-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-confirm" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
-        <button class="primary-button" type="submit">Alterar senha local</button>
+        <button class="primary-button" type="submit">Alterar senha</button>
       </form>
     </dialog>
 
@@ -326,7 +323,7 @@
         <div class="dialog-grabber" aria-hidden="true"></div>
         <div class="dialog-heading"><div><span class="eyebrow">Reserva temporária</span><h2 id="reserve-title">Confirmar reserva</h2></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button></div>
         <div id="reserve-summary" class="reserve-summary"></div>
-        <p class="dialog-note">A reserva fica salva somente neste aparelho e não é enviada à farmácia.</p>
+        <p class="dialog-note">Esta reserva é demonstrativa e não é enviada à farmácia.</p>
         <input type="hidden" id="reserve-medicine-id" />
         <button class="primary-button" type="submit">Reservar por 20 minutos</button>
       </form>
