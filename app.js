@@ -194,7 +194,7 @@
   }
 
   function setActiveTab(tabName, focusTab = false) {
-    const allowedTabs = state.user?.role === "doctor" ? ["plantoes", "mapa", "farmacia"] : ["mapa", "farmacia"];
+    const allowedTabs = state.user?.role === "doctor" ? ["plantoes", "mapa", "farmacia", "registros"] : ["mapa", "farmacia", "registros"];
     const nextTab = allowedTabs.includes(tabName) ? tabName : "mapa";
     state.activeTab = nextTab;
 
@@ -214,6 +214,9 @@
 
     if (nextTab === "mapa" && state.map) {
       window.setTimeout(() => state.map.invalidateSize(), 30);
+    } else if (nextTab === "registros") {
+      renderRecords();
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -843,6 +846,63 @@
       : `<div class="empty-state">${icon("icon-briefcase")}<strong>Nenhum plantão neste filtro</strong><span>Escolha outro filtro para ver as oportunidades.</span></div>`;
   }
 
+  function recordMedicineCard(medicine) {
+    const networkLabel = medicine.network === "publica" ? "Rede pública" : "Farmácia parceira";
+    return `
+      <article class="record-card">
+        <div class="record-card__top">
+          <span class="record-card__icon">${icon("icon-pill")}</span>
+          <div><strong>${escapeHtml(medicine.name)}</strong><small>${escapeHtml(medicine.form)}</small></div>
+          <span class="record-status">Reservado</span>
+        </div>
+        <div class="record-card__details">
+          <span>${icon("icon-hospital")}<strong>${escapeHtml(medicine.place)}</strong></span>
+          <span>${icon("icon-map")}<strong>${escapeHtml(medicine.distance)}</strong></span>
+          <span>${icon("icon-check")}<strong>${escapeHtml(networkLabel)}</strong></span>
+        </div>
+        <button class="record-remove-button" type="button" data-cancel-reservation="${escapeHtml(medicine.id)}">Cancelar reserva</button>
+      </article>`;
+  }
+
+  function recordShiftCard(shift) {
+    return `
+      <article class="record-card">
+        <div class="record-card__top">
+          <span class="record-card__icon record-card__icon--blue">${icon("icon-briefcase")}</span>
+          <div><strong>${escapeHtml(shift.title)}</strong><small>${escapeHtml(shiftDateLabel(shift.dayOffset))}</small></div>
+          <span class="record-status">Registrado</span>
+        </div>
+        <div class="record-card__details">
+          <span>${icon("icon-hospital")}<strong>${escapeHtml(shift.unit)}</strong></span>
+          <span>${icon("icon-clock")}<strong>${escapeHtml(shift.time)}</strong></span>
+          <span>${icon("icon-map")}<strong>${escapeHtml(shift.address)}</strong></span>
+        </div>
+        <button class="record-remove-button" type="button" data-cancel-application="${escapeHtml(shift.id)}">Cancelar candidatura</button>
+      </article>`;
+  }
+
+  function renderRecords() {
+    if (!state.user) return;
+    const reservedMedicines = medicines.filter((medicine) => state.reservations.has(medicine.id));
+    const selectedShifts = shifts.filter((shift) => state.applications.has(shift.id));
+    const isDoctor = state.user.role === "doctor";
+
+    $("#records-summary").classList.toggle("is-patient", !isDoctor);
+    $("#records-medicine-total").textContent = String(reservedMedicines.length);
+    $("#records-medicine-count").textContent = `${reservedMedicines.length} ${reservedMedicines.length === 1 ? "reserva" : "reservas"}`;
+    $("#records-medicine-list").innerHTML = reservedMedicines.length
+      ? reservedMedicines.map(recordMedicineCard).join("")
+      : `<div class="empty-state empty-state--compact">${icon("icon-pill")}<strong>Nenhum medicamento reservado</strong><span>Escolha um item na Farmácia para ele aparecer aqui.</span><button type="button" data-open-tab="farmacia">Ir para Farmácia</button></div>`;
+
+    if (isDoctor) {
+      $("#records-shift-total").textContent = String(selectedShifts.length);
+      $("#records-shift-count").textContent = `${selectedShifts.length} ${selectedShifts.length === 1 ? "candidatura" : "candidaturas"}`;
+      $("#records-shift-list").innerHTML = selectedShifts.length
+        ? selectedShifts.map(recordShiftCard).join("")
+        : `<div class="empty-state empty-state--compact">${icon("icon-briefcase")}<strong>Nenhum plantão escolhido</strong><span>Demonstre interesse em um plantão para registrá-lo aqui.</span><button type="button" data-open-tab="plantoes">Ver Plantões</button></div>`;
+    }
+  }
+
   function perUserKey(type) {
     return `osistec_${type}_${state.user?.id || "sem-conta"}`;
   }
@@ -883,6 +943,8 @@
       $("#doctor-summary-specialty").textContent = user.specialty || "Especialidade não informada";
       renderShifts();
     }
+
+    renderRecords();
 
     setActiveTab("mapa");
     if (!state.map) initMap();
@@ -977,6 +1039,7 @@
       }
       storage.set(perUserKey("applications"), Array.from(state.applications));
       renderShifts();
+      renderRecords();
     });
 
     $$("[data-medicine-filter]").forEach((button) => {
@@ -1014,10 +1077,39 @@
       }
       $("#reserve-dialog").close();
       renderMedicines();
+      renderRecords();
       showToast("Reserva demonstrativa salva por 20 minutos.");
     });
 
     $("[data-close-dialog]").addEventListener("click", () => $("#reserve-dialog").close());
+
+    $("#panel-registros").addEventListener("click", (event) => {
+      const openTabButton = event.target.closest("[data-open-tab]");
+      const reservationButton = event.target.closest("[data-cancel-reservation]");
+      const applicationButton = event.target.closest("[data-cancel-application]");
+
+      if (openTabButton) {
+        setActiveTab(openTabButton.dataset.openTab);
+        return;
+      }
+
+      if (reservationButton) {
+        state.reservations.delete(reservationButton.dataset.cancelReservation);
+        storage.set(perUserKey("reservations"), Array.from(state.reservations));
+        renderMedicines();
+        renderRecords();
+        showToast("Reserva demonstrativa cancelada.");
+        return;
+      }
+
+      if (applicationButton && state.user?.role === "doctor") {
+        state.applications.delete(applicationButton.dataset.cancelApplication);
+        storage.set(perUserKey("applications"), Array.from(state.applications));
+        renderShifts();
+        renderRecords();
+        showToast("Candidatura demonstrativa cancelada.");
+      }
+    });
   }
 
   function registerServiceWorker() {

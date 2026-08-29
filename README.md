@@ -5,11 +5,16 @@ Protótipo mobile em HTML, CSS e JavaScript para pacientes e médicos em Mogi Gu
 ## Acesso e perfis
 
 - É necessário criar uma conta local escolhendo **Paciente** ou **Médico**.
-- O paciente acessa somente **Mapa** e **Farmácia**.
-- O médico acessa **Plantões**, **Mapa** e **Farmácia**.
+- O paciente acessa **Mapa**, **Farmácia** e **Meus registros**.
+- O médico acessa **Plantões**, **Mapa**, **Farmácia** e **Meus registros**.
 - A conta, o perfil e as ações demonstrativas ficam apenas no navegador deste aparelho.
 - A senha não é salva em texto: o navegador usa PBKDF2 e SHA-256 com salt. Ainda assim, esta autenticação local é apenas para protótipo e não substitui um servidor seguro.
 - Há recuperação local de senha, edição de perfil, sair da conta e exclusão da conta.
+- A aba **Meus registros** reúne os medicamentos reservados e, para médicos, os plantões escolhidos. As escolhas podem ser canceladas na própria aba.
+
+## Apresentação no computador
+
+Em telas maiores, o aplicativo é exibido em uma moldura centralizada de celular, com 430 px de largura. Isso mantém a mesma navegação mobile no computador e facilita demonstrações em projetor ou compartilhamento de tela.
 
 ## Mapa principal
 
