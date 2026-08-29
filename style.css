@@ -1044,17 +1044,32 @@ noscript { position: fixed; z-index: 3000; inset: 0; display: grid; place-items:
   .auth-screen .auth-wrap { width: 100%; }
   .auth-screen .form-row:not(.form-row--crm) { grid-template-columns: 1fr; }
   .app-shell {
+    isolation: isolate;
     width: 430px;
     height: calc(100dvh - 36px);
     min-height: 0;
     border-radius: 36px;
+    background: var(--navy-900);
     box-shadow: 0 0 0 8px #0b1720, 0 30px 90px rgba(3, 20, 33, 0.34);
   }
-  .app-header { top: 18px; width: 430px; border-radius: 36px 36px 0 0; }
-  .map-panel { top: calc(18px + var(--header-height)); bottom: calc(18px + var(--tabs-height)); }
+  .app-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    transform: none;
+    border-radius: 0;
+  }
+  .map-panel {
+    position: absolute;
+    top: var(--header-height);
+    bottom: var(--tabs-height);
+    left: 0;
+    transform: none;
+  }
   .map-panel, .bottom-tabs { width: 430px; }
-  .bottom-tabs { bottom: 18px; border-radius: 0 0 36px 36px; }
-  .app-content { height: calc(100dvh - 36px); min-height: 0; overflow: hidden; }
+  .bottom-tabs { position: absolute; bottom: 0; border-radius: 0; }
+  .app-content { height: calc(100dvh - 36px); min-height: 0; overflow: hidden; background: var(--canvas); }
   .scroll-panel { height: calc(100dvh - 36px - var(--header-height) - var(--tabs-height)); min-height: 0; }
   .app-dialog { width: 406px; margin-bottom: 18px; border-radius: 25px; }
   .toast { bottom: calc(18px + var(--tabs-height) + 14px); max-width: 402px; }
