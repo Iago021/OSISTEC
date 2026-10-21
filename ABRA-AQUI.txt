@@ -1,0 +1,12 @@
+OSISTEC OFFLINE
+
+1. Extraia a pasta do ZIP.
+2. Abra index.html no Chrome, Edge ou Firefox atualizado.
+
+Não precisa instalar Python ou Node.js e não precisa de internet.
+Não abra o HTML dentro do ZIP: extraia primeiro.
+O index.html já contém tudo que o aplicativo precisa para abrir.
+Pode copiar somente ele para outra pasta se quiser.
+
+O mapa urbano de Mogi Guaçu, as unidades e as rotas estão incluídos.
+Busca por voz e o botão Google Maps podem precisar de internet.
