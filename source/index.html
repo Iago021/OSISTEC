@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#071f33" />
+    <meta name="description" content="OSISTEC: atendimento em Mogi Guaçu para pacientes e médicos." />
+    <title>OSISTEC — Saúde conectada</title>
+    <link rel="icon" href="assets/osistec-logo.jpeg" />
+    <link rel="stylesheet" href="vendor/maplibre-gl.css" />
+    <link rel="stylesheet" href="style.css?v=20" />
+    <script src="offline-pack.js" defer></script>
+    <script src="direct-runtime.js" defer></script>
+    <script src="auth.js?v=20" defer></script>
+    <script src="app.js?v=20" defer></script>
+  </head>
+  <body>
+    <svg class="svg-sprite" aria-hidden="true">
+      <symbol id="icon-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"></path><path d="M3.7 12h4l1.5-3 2.2 6 1.7-3H20"></path></symbol>
+      <symbol id="icon-pill" viewBox="0 0 24 24"><path d="m10.5 20.5-7-7a5 5 0 0 1 7-7l7 7a5 5 0 0 1-7 7Z"></path><path d="m8 9 7 7"></path></symbol>
+      <symbol id="icon-map" viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"></path><circle cx="12" cy="10" r="2.5"></circle></symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"></path></symbol>
+      <symbol id="icon-bell" viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"></path></symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"></path><path d="m9 12 2 2 4-4"></path></symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"></path></symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"></path></symbol>
+      <symbol id="icon-hospital" viewBox="0 0 24 24"><path d="M3 21h18M5 21V6a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v15"></path><path d="M9 9h6M12 6v6M8 15h2M14 15h2M10 21v-3h4v3"></path></symbol>
+      <symbol id="icon-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></symbol>
+      <symbol id="icon-mic" viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"></path></symbol>
+      <symbol id="icon-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="5" r="2"></circle><path d="M8 19h3a3 3 0 0 0 3-3V8a3 3 0 0 1 3-3"></path></symbol>
+      <symbol id="icon-crosshair" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"></circle><circle cx="12" cy="12" r="2"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></symbol>
+      <symbol id="icon-keyboard" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 13h.01M10 13h.01M14 13h.01M18 13h.01M7 16h10"></path></symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24"><path d="M10.3 3.8 2.2 18a2 2 0 0 0 1.7 3h16.2a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0Z"></path><path d="M12 9v4M12 17h.01"></path></symbol>
+      <symbol id="icon-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"></path></symbol>
+      <symbol id="icon-lock" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="11" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 15H6L5 6M10 10v7M14 10v7"></path></symbol>
+      <symbol id="icon-clipboard" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="17" rx="2"></rect><path d="M9 4V2h6v2M8 10h8M8 14h8M8 18h5"></path></symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"></path><circle cx="12" cy="12" r="2.5"></circle></symbol>
+    </svg>
+
+    <main class="auth-screen" id="auth-screen" aria-labelledby="auth-title">
+      <div class="auth-wrap">
+        <div class="auth-brand">
+          <img src="assets/osistec-logo.jpeg" alt="" />
+          <div><strong>OSISTEC</strong><span>Saúde conectada em Mogi Guaçu</span></div>
+        </div>
+
+        <section class="auth-card">
+          <div class="auth-intro">
+            <h1 id="auth-title">Acesse seu espaço</h1>
+            <p>Entre como paciente ou médico e acesse os recursos do OSISTEC.</p>
+          </div>
+
+          <div class="auth-tabs" role="tablist" aria-label="Acesso à conta">
+            <button class="is-active" id="auth-tab-login" type="button" role="tab" aria-selected="true" aria-controls="login-form" data-auth-view="login">Entrar</button>
+            <button id="auth-tab-register" type="button" role="tab" aria-selected="false" aria-controls="register-form" data-auth-view="register">Criar conta</button>
+          </div>
+
+          <form class="auth-form" id="login-form" aria-labelledby="auth-tab-login">
+            <div class="form-message" id="login-message" role="alert" aria-live="polite" hidden></div>
+            <label class="form-field" for="login-email"><span>E-mail</span><input id="login-email" name="email" type="email" inputmode="email" autocomplete="username" placeholder="voce@exemplo.com" required /></label>
+            <div class="form-field"><label for="login-password">Senha</label><div class="password-input"><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Sua senha" required /><button type="button" data-password-toggle="login-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+            <div class="login-options">
+              <label class="check-field"><input id="login-remember" type="checkbox" checked /><span>Manter conectado</span></label>
+              <button class="link-button" id="forgot-password-button" type="button">Esqueci a senha</button>
+            </div>
+            <button class="auth-submit" type="submit">Entrar no OSISTEC</button>
+          </form>
+
+          <form class="auth-form" id="register-form" aria-labelledby="auth-tab-register" novalidate hidden>
+            <fieldset class="role-fieldset">
+              <legend>Como você vai usar o OSISTEC?</legend>
+              <div class="role-options">
+                <label class="role-card"><input type="radio" name="register-role" value="patient" checked /><span class="role-icon"><svg><use href="#icon-user"></use></svg></span><span><strong>Paciente</strong><small>Mapa, farmácia e registros</small></span></label>
+                <label class="role-card"><input type="radio" name="register-role" value="doctor" /><span class="role-icon"><svg><use href="#icon-heart"></use></svg></span><span><strong>Médico</strong><small>Inclui plantões e registros</small></span></label>
+              </div>
+            </fieldset>
+
+            <label class="form-field" for="register-name"><span>Nome completo</span><input id="register-name" name="name" type="text" autocomplete="name" minlength="3" placeholder="Seu nome" required /></label>
+            <div class="form-row">
+              <label class="form-field" for="register-email"><span>E-mail</span><input id="register-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@exemplo.com" required /></label>
+              <label class="form-field" for="register-phone"><span>Telefone</span><input id="register-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(19) 99999-9999" required /></label>
+            </div>
+            <label class="form-field" for="register-birth-date"><span>Data de nascimento</span><input id="register-birth-date" name="birthDate" type="date" autocomplete="bday" required /></label>
+
+            <div class="doctor-register-fields" id="doctor-register-fields" hidden>
+              <div class="doctor-fields-heading"><svg><use href="#icon-shield"></use></svg><p><strong>Dados profissionais</strong><small>A validação do CRM é apenas demonstrativa nesta versão.</small></p></div>
+              <div class="form-row form-row--crm">
+                <label class="form-field" for="register-crm"><span>CRM</span><input id="register-crm" name="crm" type="text" inputmode="numeric" placeholder="123456" /></label>
+                <label class="form-field" for="register-crm-state"><span>UF</span><select id="register-crm-state" name="crmState"><option value="">UF</option><option value="SP">SP</option><option value="MG">MG</option><option value="RJ">RJ</option><option value="PR">PR</option><option value="SC">SC</option><option value="RS">RS</option><option value="GO">GO</option><option value="DF">DF</option><option value="BA">BA</option><option value="ES">ES</option><option value="MS">MS</option><option value="MT">MT</option></select></label>
+              </div>
+              <label class="form-field" for="register-specialty"><span>Especialidade</span><input id="register-specialty" name="specialty" type="text" autocomplete="organization-title" placeholder="Ex.: Clínica médica" /></label>
+            </div>
+
+            <div class="form-row">
+              <div class="form-field"><label for="register-password">Senha</label><div class="password-input"><input id="register-password" name="password" type="password" autocomplete="new-password" minlength="8" placeholder="Mínimo 8 caracteres" required /><button type="button" data-password-toggle="register-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+              <div class="form-field"><label for="register-confirm-password">Confirmar senha</label><div class="password-input"><input id="register-confirm-password" name="confirmPassword" type="password" autocomplete="new-password" placeholder="Repita a senha" required /><button type="button" data-password-toggle="register-confirm-password" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+            </div>
+            <p class="password-help">Use pelo menos 8 caracteres, com letra maiúscula, minúscula e número.</p>
+            <label class="check-field check-field--terms"><input id="register-terms" type="checkbox" required /><span>Entendo que esta é uma versão de apresentação e não usarei dados médicos reais.</span></label>
+            <div class="form-message register-message" id="register-message" role="alert" aria-live="assertive" hidden></div>
+            <button class="auth-submit" type="submit">Criar minha conta</button>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <div class="app-shell" id="app-shell" hidden>
+      <header class="app-header">
+        <div class="brand">
+          <img src="assets/osistec-logo.jpeg" alt="" />
+          <div><strong>OSISTEC</strong><span id="header-role-label">Saúde conectada</span></div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-button" type="button" id="notification-button" aria-label="Ver notificações">
+            <svg><use href="#icon-bell"></use></svg><span class="notification-count" id="notification-count" aria-hidden="true" hidden>0</span>
+          </button>
+          <button class="profile-button" type="button" id="profile-button" aria-label="Abrir meu perfil">
+            <span id="profile-initial">U</span><small id="profile-first-name">Perfil</small>
+          </button>
+        </div>
+      </header>
+
+      <main class="app-content">
+        <section class="app-panel scroll-panel shifts-panel" id="panel-plantoes" role="tabpanel" aria-labelledby="tab-plantoes" data-role-only="doctor" hidden>
+          <div class="screen-heading">
+            <div><span class="eyebrow">Área médica</span><h1>Plantões</h1><p>Veja oportunidades demonstrativas em Mogi Guaçu.</p></div>
+            <span class="screen-icon screen-icon--blue"><svg><use href="#icon-briefcase"></use></svg></span>
+          </div>
+
+          <article class="doctor-summary">
+            <span class="doctor-summary__avatar" id="doctor-summary-initial">M</span>
+            <div><strong id="doctor-summary-name">Médico</strong><span id="doctor-summary-credential">CRM —</span><small id="doctor-summary-specialty">Especialidade</small></div>
+            <span class="credential-badge"><svg><use href="#icon-shield"></use></svg>Cadastro profissional</span>
+          </article>
+
+          <div class="filter-row" role="group" aria-label="Filtrar plantões">
+            <button class="filter-chip shift-filter is-active" type="button" data-shift-filter="todos">Todos</button>
+            <button class="filter-chip shift-filter" type="button" data-shift-filter="hoje">Hoje</button>
+            <button class="filter-chip shift-filter" type="button" data-shift-filter="proximos">Próximos</button>
+            <button class="filter-chip shift-filter" type="button" data-shift-filter="candidatados">Candidatados</button>
+          </div>
+          <div class="section-toolbar section-toolbar--results">
+            <div class="section-title-group"><h2>Oportunidades</h2><span id="shift-count">0 plantões</span></div>
+          </div>
+          <div class="card-list" id="shift-list" aria-live="polite"></div>
+          <article class="soft-note"><svg><use href="#icon-alert"></use></svg><p>Os plantões e as candidaturas são fictícios. O CRM ainda não é consultado em uma base oficial.</p></article>
+        </section>
+
+        <section class="app-panel map-panel is-active" id="panel-mapa" role="tabpanel" aria-labelledby="tab-mapa">
+          <div id="health-map" tabindex="0" role="region" aria-label="Mapa interativo de unidades de saúde em Mogi Guaçu"></div>
+
+          <div class="map-loading" id="map-loading" role="status" aria-live="polite">
+            <span class="loading-spinner" aria-hidden="true"></span>
+            <p><strong>Abrindo Mogi Guaçu</strong><small>Carregando as ruas e unidades salvas no aplicativo.</small></p>
+          </div>
+
+          <section class="voice-card" aria-labelledby="voice-title">
+            <div class="voice-copy">
+              <span class="eyebrow">Busca em Mogi Guaçu</span>
+              <h1 id="voice-title">O que você está sentindo?</h1>
+              <p id="voice-transcript" aria-live="polite">Toque no microfone e fale, por exemplo: “estou com febre”.</p>
+            </div>
+            <button class="voice-button" id="voice-button" type="button" aria-label="Começar busca por voz" aria-pressed="false">
+              <svg><use href="#icon-mic"></use></svg><span class="voice-rings" aria-hidden="true"></span>
+            </button>
+            <div class="voice-listening" id="voice-listening" hidden aria-live="assertive"><span></span><span></span><span></span><span></span><strong>Ouvindo…</strong></div>
+            <button class="text-fallback-button" id="show-text-search" type="button" aria-expanded="false" aria-controls="text-search-form"><svg><use href="#icon-keyboard"></use></svg>Prefere digitar?</button>
+            <form class="text-search-form" id="text-search-form" role="search" hidden>
+              <label class="sr-only" for="symptom-search">Digite o que está sentindo</label>
+              <input id="symptom-search" type="search" placeholder="Ex.: febre e dor de cabeça" autocomplete="off" enterkeyhint="search" required />
+              <button type="submit">Buscar</button>
+            </form>
+            <label class="sr-only" for="unit-picker">Escolher unidade de saúde</label>
+            <select id="unit-picker" class="unit-picker"><option value="">Escolher uma unidade de saúde</option></select>
+          </section>
+
+          <button class="locate-button" id="locate-button" type="button" aria-label="Centralizar o mapa em Mogi Guaçu"><svg><use href="#icon-crosshair"></use></svg></button>
+          <div class="map-legend" aria-label="Legenda da lotação demonstrativa"><span><i class="low"></i>Livre</span><span><i class="medium"></i>Moderada</span><span><i class="full"></i>Lotada</span></div>
+
+          <article class="recommendation-card" id="recommendation-card" aria-live="polite" hidden>
+            <div class="sheet-grabber" aria-hidden="true"></div>
+            <div class="recommendation-top">
+              <div><span class="recommendation-label" id="recommendation-label">Unidade indicada</span><h2 id="recommendation-name">Unidade de saúde</h2><p id="recommendation-type">Atendimento geral</p></div>
+              <span class="occupancy-badge" id="recommendation-occupancy">Livre</span>
+            </div>
+            <div class="route-metrics">
+              <span><svg><use href="#icon-route"></use></svg><strong id="route-distance">—</strong><small>distância</small></span>
+              <span><svg><use href="#icon-clock"></use></svg><strong id="route-duration">—</strong><small>de carro</small></span>
+              <span><svg><use href="#icon-user"></use></svg><strong id="route-wait">—</strong><small>espera demo</small></span>
+            </div>
+            <p class="recommendation-reason" id="recommendation-reason"></p>
+            <p class="route-note" id="route-note" role="status"></p>
+            <p class="urgent-warning" id="urgent-warning" hidden><svg><use href="#icon-alert"></use></svg><span>Possível situação urgente. Procure atendimento imediato.</span></p>
+            <div class="recommendation-actions">
+              <button class="checkin-button" id="checkin-button" type="button">Fazer check-in</button>
+              <a class="gps-button" id="gps-button" href="#" target="_blank" rel="noopener noreferrer"><svg><use href="#icon-route"></use></svg>Google Maps (online)</a>
+            </div>
+            <p class="demo-disclaimer">A rota parte do centro de Mogi Guaçu. Lotação e recomendação são demonstrativas; o protótipo não realiza diagnóstico.</p>
+          </article>
+        </section>
+
+        <section class="app-panel scroll-panel" id="panel-farmacia" role="tabpanel" aria-labelledby="tab-farmacia" hidden>
+          <div class="screen-heading">
+            <div><span class="eyebrow">Estoque integrado</span><h1>Medicamentos</h1><p>Consulte opções próximas antes de sair de casa.</p></div>
+            <span class="screen-icon screen-icon--mint"><svg><use href="#icon-pill"></use></svg></span>
+          </div>
+          <form class="secondary-search" id="medicine-search-form" role="search">
+            <svg><use href="#icon-search"></use></svg><label class="sr-only" for="medicine-search">Buscar medicamento</label>
+            <input id="medicine-search" type="search" placeholder="Nome ou princípio ativo" autocomplete="off" enterkeyhint="search" /><button type="submit">Buscar</button>
+          </form>
+          <div class="filter-row" role="group" aria-label="Filtrar local do medicamento">
+            <button class="filter-chip medicine-filter is-active" type="button" data-medicine-filter="todos">Todos</button>
+            <button class="filter-chip medicine-filter" type="button" data-medicine-filter="publica">Rede pública</button>
+            <button class="filter-chip medicine-filter" type="button" data-medicine-filter="parceira">Parceiras</button>
+          </div>
+          <div class="section-toolbar section-toolbar--results"><div class="section-title-group"><h2>Disponíveis agora</h2><span id="medicine-count">4 resultados</span></div></div>
+          <div class="card-list" id="medicine-list" aria-live="polite"></div>
+          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Preços, estoques e reservas são fictícios. Medicamentos sujeitos a receita precisam de validação.</p></article>
+        </section>
+
+        <section class="app-panel scroll-panel records-panel" id="panel-registros" role="tabpanel" aria-labelledby="tab-registros" hidden>
+          <div class="screen-heading">
+            <div><span class="eyebrow">Suas escolhas</span><h1>Meus registros</h1><p>Acompanhe as escolhas feitas nesta conta.</p></div>
+            <span class="screen-icon screen-icon--mint"><svg><use href="#icon-clipboard"></use></svg></span>
+          </div>
+
+          <div class="records-summary" id="records-summary">
+            <article><span class="record-summary-icon"><svg><use href="#icon-pill"></use></svg></span><p><strong id="records-medicine-total">0</strong><small>medicamentos</small></p></article>
+            <article id="records-shift-summary" data-role-only="doctor" hidden><span class="record-summary-icon record-summary-icon--blue"><svg><use href="#icon-briefcase"></use></svg></span><p><strong id="records-shift-total">0</strong><small>plantões</small></p></article>
+          </div>
+
+          <section class="records-section" aria-labelledby="records-medicine-title">
+            <div class="section-toolbar section-toolbar--results">
+              <div class="section-title-group"><h2 id="records-medicine-title">Medicamentos reservados</h2><span id="records-medicine-count">0 reservas</span></div>
+            </div>
+            <div class="card-list" id="records-medicine-list" aria-live="polite"></div>
+          </section>
+
+          <section class="records-section" id="records-shift-section" data-role-only="doctor" aria-labelledby="records-shift-title" hidden>
+            <div class="section-toolbar section-toolbar--results">
+              <div class="section-title-group"><h2 id="records-shift-title">Plantões escolhidos</h2><span id="records-shift-count">0 candidaturas</span></div>
+            </div>
+            <div class="card-list" id="records-shift-list" aria-live="polite"></div>
+          </section>
+
+          <article class="soft-note"><svg><use href="#icon-shield"></use></svg><p>Estes registros são demonstrativos e não são enviados a hospitais ou farmácias.</p></article>
+        </section>
+      </main>
+
+      <nav class="bottom-tabs" id="bottom-tabs" role="tablist" aria-label="Áreas do aplicativo">
+        <button type="button" id="tab-plantoes" role="tab" aria-controls="panel-plantoes" aria-selected="false" tabindex="-1" data-tab="plantoes" data-role-only="doctor" hidden><span class="tab-icon"><svg><use href="#icon-briefcase"></use></svg></span><span>Plantões</span></button>
+        <button type="button" id="tab-farmacia" role="tab" aria-controls="panel-farmacia" aria-selected="false" tabindex="-1" data-tab="farmacia"><span class="tab-icon"><svg><use href="#icon-pill"></use></svg></span><span>Farmácia</span></button>
+        <button class="tab-primary is-active" type="button" id="tab-mapa" role="tab" aria-controls="panel-mapa" aria-selected="true" data-tab="mapa"><span class="tab-icon"><svg><use href="#icon-map"></use></svg></span><span>Mapa</span></button>
+        <button type="button" id="tab-registros" role="tab" aria-controls="panel-registros" aria-selected="false" tabindex="-1" data-tab="registros"><span class="tab-icon"><svg><use href="#icon-clipboard"></use></svg></span><span>Registros</span></button>
+      </nav>
+    </div>
+
+    <dialog class="app-dialog profile-dialog" id="profile-dialog" aria-labelledby="profile-title">
+      <form id="profile-form">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading">
+          <div><span class="eyebrow">Minha conta</span><h2 id="profile-title">Meu perfil</h2></div>
+          <button class="dialog-close" type="button" data-close-profile aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button>
+        </div>
+        <div class="profile-identity"><span id="profile-dialog-initial">U</span><p><strong id="profile-dialog-name">Usuário</strong><small id="profile-dialog-role">Paciente</small></p></div>
+        <div class="form-message" id="profile-message" role="alert" aria-live="polite" hidden></div>
+        <label class="form-field" for="profile-name"><span>Nome completo</span><input id="profile-name" name="name" type="text" autocomplete="name" required /></label>
+        <label class="form-field" for="profile-email"><span>E-mail</span><input id="profile-email" name="email" type="email" readonly /></label>
+        <div class="form-row">
+          <label class="form-field" for="profile-phone"><span>Telefone</span><input id="profile-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required /></label>
+          <label class="form-field" for="profile-birth-date"><span>Nascimento</span><input id="profile-birth-date" name="birthDate" type="date" required /></label>
+        </div>
+        <div id="profile-doctor-fields" hidden>
+          <div class="form-row form-row--crm">
+            <label class="form-field" for="profile-crm"><span>CRM</span><input id="profile-crm" name="crm" type="text" inputmode="numeric" /></label>
+            <label class="form-field" for="profile-crm-state"><span>UF</span><input id="profile-crm-state" name="crmState" type="text" maxlength="2" /></label>
+          </div>
+          <label class="form-field" for="profile-specialty"><span>Especialidade</span><input id="profile-specialty" name="specialty" type="text" /></label>
+        </div>
+        <button class="primary-button" type="submit">Salvar alterações</button>
+        <div class="account-actions">
+          <button id="logout-button" type="button"><svg><use href="#icon-lock"></use></svg>Sair da conta</button>
+          <button class="danger-button" id="delete-account-button" type="button"><svg><use href="#icon-trash"></use></svg>Excluir conta</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog class="app-dialog notification-dialog" id="notification-dialog" aria-labelledby="notification-title">
+      <section class="dialog-content">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading"><div><span class="eyebrow">Atualizações da conta</span><h2 id="notification-title">Notificações</h2></div><button class="dialog-close" type="button" data-close-notifications aria-label="Fechar notificações"><svg><use href="#icon-close"></use></svg></button></div>
+        <p class="notification-summary" id="notification-summary">Confira suas atualizações recentes.</p>
+        <div class="notification-list" id="notification-list" aria-live="polite"></div>
+        <button class="notification-read-button" id="notification-read-button" type="button">Marcar todas como lidas</button>
+      </section>
+    </dialog>
+
+    <dialog class="app-dialog" id="reset-password-dialog" aria-labelledby="reset-password-title">
+      <form id="reset-password-form">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading"><div><span class="eyebrow">Recuperar acesso</span><h2 id="reset-password-title">Criar nova senha</h2></div><button class="dialog-close" type="button" data-close-reset aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button></div>
+        <p class="dialog-note">Defina uma nova senha para acessar sua conta.</p>
+        <div class="form-message" id="reset-password-message" role="alert" aria-live="polite" hidden></div>
+        <label class="form-field" for="reset-password-email"><span>E-mail da conta</span><input id="reset-password-email" name="email" type="email" inputmode="email" autocomplete="username" required /></label>
+        <div class="form-field"><label for="reset-password-new">Nova senha</label><div class="password-input"><input id="reset-password-new" name="password" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-new" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+        <div class="form-field"><label for="reset-password-confirm">Confirmar nova senha</label><div class="password-input"><input id="reset-password-confirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="8" required /><button type="button" data-password-toggle="reset-password-confirm" aria-label="Mostrar senha" aria-pressed="false"><svg><use href="#icon-eye"></use></svg><span>Mostrar</span></button></div></div>
+        <button class="primary-button" type="submit">Alterar senha</button>
+      </form>
+    </dialog>
+
+    <dialog class="app-dialog" id="reserve-dialog" aria-labelledby="reserve-title">
+      <form method="dialog" id="reserve-form">
+        <div class="dialog-grabber" aria-hidden="true"></div>
+        <div class="dialog-heading"><div><span class="eyebrow">Reserva temporária</span><h2 id="reserve-title">Confirmar reserva</h2></div><button class="dialog-close" type="button" data-close-dialog aria-label="Fechar"><svg><use href="#icon-close"></use></svg></button></div>
+        <div id="reserve-summary" class="reserve-summary"></div>
+        <p class="dialog-note">Esta reserva é demonstrativa e não é enviada à farmácia.</p>
+        <input type="hidden" id="reserve-medicine-id" />
+        <button class="primary-button" type="submit">Reservar por 20 minutos</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"><span><svg><use href="#icon-check"></use></svg></span><p id="toast-message">Ação concluída.</p></div>
+    <noscript>Ative o JavaScript para utilizar o mapa, a busca por voz e as demais funções.</noscript>
+  </body>
+</html>
