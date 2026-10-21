@@ -511,21 +511,54 @@
     else showToast("Mapa centralizado em Mogi Guaçu.");
   }
 
+  // Em navegadores móveis o arquivo local pode bloquear WebGL/Worker.
+  // Quando isso acontece, utilize a mesma rede de ruas em Canvas 2D.
+  function openFallbackMap() {
+    if (state.mapReady || !state.user || !state.offlineBundle) return;
+    try {
+      state.map?.remove?.();
+      state.map = null;
+      const host = $("#health-map");
+      host.replaceChildren();
+      state.map = new window.OSISTECFallbackMap({
+        container: host,
+        roads: state.offlineBundle.roads,
+        center: [MOGI_GUACU_POSITION.lon, MOGI_GUACU_POSITION.lat],
+        zoom: 13.4,
+        minZoom: 11,
+        maxZoom: 18,
+        maxBounds: [[-47.01, -22.42], [-46.88, -22.30]],
+      });
+      state.map.addControl();
+      state.map.on("load", () => {
+        state.mapReady = true;
+        state.mapStarting = false;
+        centerOnMogiGuacu({reloadUnits: true});
+      });
+    } catch (error) {
+      state.mapStarting = false;
+      showMapLoading("Não foi possível abrir o mapa", error.message || "Erro no navegador ao desenhar o mapa local.");
+    }
+  }
+
   async function initMap() {
     if (state.map || state.mapStarting) return;
     state.mapStarting = true;
     showMapLoading("Carregando mapa", "Preparando o mapa interativo de Mogi Guaçu.");
-
     try {
-      const maplibre = loadMapLibrary();
       const offlineModule = window.OSISTECRuntime;
+      if (!offlineModule) throw new Error("Biblioteca offline ausente.");
       state.offlineBundle = await offlineModule.loadOfflineBundle();
       state.offlineRouter = offlineModule.createRouter(state.offlineBundle.roads);
-      if (!state.user) {
-        state.mapStarting = false;
-        return;
-      }
+      if (!state.user) { state.mapStarting = false; return; }
 
+      // O modo 2D é mais compatível com navegadores Android que abrem file://.
+      // No computador e no site hospedado, continua a usar MapLibre completo.
+      const mobileLocal = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+        || (navigator.maxTouchPoints > 1 && window.innerWidth <= 800);
+      if (mobileLocal || new URLSearchParams(location.search).get("mapa2d") === "1") { openFallbackMap(); return; }
+
+      const maplibre = loadMapLibrary();
       state.maplibre = maplibre;
       state.map = new maplibre.Map({
         container: "health-map",
@@ -537,23 +570,29 @@
         maxBounds: [[-47.01, -22.42], [-46.88, -22.30]],
         attributionControl: true,
       });
-      state.map.addControl(new maplibre.NavigationControl({ showCompass: false }), "top-left");
-
+      state.map.addControl(new maplibre.NavigationControl({showCompass:false}), "top-left");
       state.map.on("load", () => {
+        if (state.mapReady) return;
         state.mapReady = true;
         state.mapStarting = false;
-        centerOnMogiGuacu({ reloadUnits: true });
+        centerOnMogiGuacu({reloadUnits:true});
       });
-      const observer = new ResizeObserver(() => state.map?.resize());
-      observer.observe($("#health-map"));
+      if (typeof ResizeObserver !== "undefined") {
+        const observer = new ResizeObserver(() => state.map?.resize());
+        observer.observe($("#health-map"));
+      }
       state.map.on("error", () => {
-        if (!state.mapReady) {
-          showMapLoading("Mapa indisponível", "Não foi possível carregar a base do mapa. Tente recarregar a página.");
-        }
+        if (!state.mapReady) openFallbackMap();
       });
+      window.setTimeout(() => {
+        if (!state.mapReady && state.mapStarting) openFallbackMap();
+      }, 9000);
     } catch (error) {
-      state.mapStarting = false;
-      showMapLoading("Não foi possível abrir o mapa", error.message || "Confira se o ZIP foi extraído por completo e abra o index.html novamente.");
+      if (state.offlineBundle && window.OSISTECFallbackMap) openFallbackMap();
+      else {
+        state.mapStarting = false;
+        showMapLoading("Não foi possível abrir o mapa", error.message || "Confira se o ZIP foi extraído e abra o index.html novamente.");
+      }
     }
   }
 
